@@ -634,7 +634,7 @@ object TransactionSyntaxInterpreter {
     type AsmCheck = AssetMergingStatement => Boolean
     val outputIdxInBounds: AsmCheck = _.outputIdx < transaction.outputs.size
     val multipleInputs: AsmCheck = _.inputUtxos.length >= 2
-    val allInputsPresent: AsmCheck = _.inputUtxos.forall { input => transaction.inputs.exists(_.address == input) }
+    val allInputsPresent: AsmCheck = _.inputUtxos.forall(input => transaction.inputs.exists(_.address == input))
     val distinctInputs: AsmCheck = s => s.inputUtxos.distinct.length == s.inputUtxos.length
 
     def isValidStatement: AsmCheck = s =>
@@ -680,7 +680,14 @@ object TransactionSyntaxInterpreter {
     }
 
     def isValidMerge: MergeCheck = v =>
-      Seq(allAssetInputs, assetOutput, sumInputsEqualsOutput, sameQuantityDescriptors, sameFungibility, validFungibility).forall(_(v))
+      Seq(
+        allAssetInputs,
+        assetOutput,
+        sumInputsEqualsOutput,
+        sameQuantityDescriptors,
+        sameFungibility,
+        validFungibility
+      ).forall(_(v))
 
     val toMerge = transaction.mergingStatements.map(asm =>
       MergingValues(
