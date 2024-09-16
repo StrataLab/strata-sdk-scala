@@ -114,7 +114,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val expectedErrors = groupTxos.map(txo => TransactionSyntaxError.NonDistinctMergingInput(txo.outputAddress))
     val assertError = result.exists(_.forall(expectedErrors.contains))
     assertEquals(assertError, true)
-    assertEquals(result.map(_.toList.size).getOrElse(0), 1)
+    assertEquals(result.map(_.toList.size).getOrElse(0), expectedErrors.length)
   }
 
   /**
@@ -178,7 +178,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val inputs =
       for (txo <- groupTxos)
         yield SpentTransactionOutput(txo.outputAddress, mockAttestation, txo.transactionOutput.value)
-    val outputs = Seq(mergedGroup)
+    val outputs = Seq()
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
@@ -248,7 +248,10 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
       _.toList.contains(TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value))
     )
     assertEquals(assertError, true)
-    assertEquals(result.map(_.toList.size).getOrElse(0), 1)
+    assertEquals(
+      result.map(_.toList.size).getOrElse(0),
+      2
+    ) // 2 errors, one for the input incompatible merge, the other for insufficient funds (lvl has no input)
   }
 
   /**
