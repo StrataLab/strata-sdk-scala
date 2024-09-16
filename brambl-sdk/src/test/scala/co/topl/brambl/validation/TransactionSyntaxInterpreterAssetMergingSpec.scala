@@ -15,16 +15,17 @@ import quivr.models.Int128
 
 /**
  * Test to coverage Asset Merging:
- * - all UTXOs (inputs and the new output) share the same (non group-and-series) fungibility type
- * - all UTXOs (inputs and the new output) share the same quantity descriptor type
- * - all UTXOs (inputs and the new output) have valid series/group alloy and IDs:
- *    - If group fungible, all UTXOs must share the same group ID. The new output must have a valid seriesAlloy and no seriedId
- *    - If series fungible, all UTXOs must share the same series ID. The new output must have a valid groupAlloy and no groupId
- * - the alloy fields are a valid merkle root of the input UTXO's values (in lexicographic order)
- * - merging statement contain 2 or more asset inputs that exist in the transaction
- * - merging statement's output's index does not refer to an asset output
- * - input UTXOs are not reused in multiple merging statements
- * - input UTXOs are not present in the transaction outputs
+ *    - all UTXOs (inputs and the new output) share the same (non group-and-series) fungibility type
+ *    - all UTXOs (inputs and the new output) share the same quantity descriptor type
+ *    - all UTXOs (inputs and the new output) have valid series/group alloy and IDs:
+ *       - If group fungible, all UTXOs must share the same group ID. The new output must have a valid seriesAlloy and no seriedId
+ *       - If series fungible, all UTXOs must share the same series ID. The new output must have a valid groupAlloy and no groupId
+ *    - the alloy fields are a valid merkle root of the input UTXO's values (in lexicographic order)
+ *    - merging statement contain 2 or more asset inputs that exist in the transaction
+ *    - merging statement's output's index does not refer to an asset output
+ *    - input UTXOs are not reused in multiple merging statements
+ *    - input UTXOs are not present in the transaction outputs
+ *    - quantity in the merged output is the sum of the inputs
  */
 class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with MockHelpers {
 
@@ -90,9 +91,9 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val outputs = Seq(UnspentTransactionOutput(mockLockAddress, lvlValue), mergedGroup, mergedSeries)
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup, asmSeries))
 
-    val result = validator.validate(testTx).toOption
-
-    assert(result.isDefined) // If the result is defined, the validation passed
+    val result = validator.validate(testTx)
+    println(result)
+    assert(result.toOption.isDefined) // If the result is defined, the validation passed
   }
 
   /**
@@ -109,6 +110,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
       mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup, asmGroupDup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError =
       result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup, asmGroupDup))))
     assertEquals(assertError, true)
@@ -127,6 +129,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -143,6 +146,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -160,6 +164,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -177,6 +182,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -194,6 +200,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -209,6 +216,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -226,6 +234,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
@@ -258,6 +267,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroupSeries))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -281,6 +291,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asm))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -306,6 +317,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -335,6 +347,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asm))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -362,6 +375,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -392,6 +406,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asm))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -419,6 +434,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -441,6 +457,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -468,6 +485,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -495,6 +513,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -525,6 +544,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asm))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -552,6 +572,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -574,6 +595,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -601,6 +623,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
@@ -628,6 +651,35 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
 
     val result = validator.validate(testTx).swap
+    println(result)
+    val assertError = result.exists(
+      _.toList.contains(
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+      )
+    )
+    assertEquals(assertError, true)
+    assertEquals(result.map(_.toList.size).getOrElse(0), 1)
+  }
+
+  /**
+   * quantity in the merged output is the sum of the inputs
+   */
+  test("Invalid case, the output's quantity is not the sum of the inputs") {
+    val asmGroup = AssetMergingStatement(seriesTxos.map(_.outputAddress), 0)
+    val inputs =
+      for (txo <- seriesTxos)
+        yield SpentTransactionOutput(txo.outputAddress, mockAttestation, txo.transactionOutput.value)
+    val outputs = Seq(
+      mergedSeries.copy(value =
+        mergedSeries.value.withAsset(
+          mergedSeries.value.getAsset.withQuantity(Int128(ByteString.copyFrom(BigInt(1).toByteArray)))
+        )
+      )
+    )
+    val testTx = mockTransaction.withInputs(inputs).withOutputs(outputs).withMergingStatements(Seq(asmGroup))
+
+    val result = validator.validate(testTx).swap
+    println(result)
     val assertError = result.exists(
       _.toList.contains(
         TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)

@@ -240,13 +240,22 @@ object TransactionSyntaxInterpreter {
     )
 
   /**
-   * AssetEqualFundsValidation For each asset: input assets + minted assets == output asset
+   * AssetEqualFundsValidation For each asset: input assets + minted assets - merging inputs == output asset - merged outputs
    * @param transaction - transaction
    * @return
    */
   private def assetEqualFundsValidation(transaction: IoTransaction): ValidatedNec[TransactionSyntaxError, Unit] = {
-    val inputAssets = transaction.inputs.filter(_.value.value.isAsset).map(_.value.value)
-    val outputAssets = transaction.outputs.filter(_.value.value.isAsset).map(_.value.value)
+    val inputAssets = transaction.inputs
+      .filterNot(in =>
+        transaction.mergingStatements.flatMap(_.inputUtxos).contains(in.address)
+      ) // ignoring merging inputs
+      .filter(_.value.value.isAsset)
+      .map(_.value.value)
+    val outputAssets = transaction.outputs.zipWithIndex
+      .filterNot(out => transaction.mergingStatements.map(_.outputIdx).contains(out._2)) // ignoring merged outputs
+      .map(_._1)
+      .filter(_.value.value.isAsset)
+      .map(_.value.value)
 
     def groupGivenMintedStatements(stm: AssetMintingStatement) =
       transaction.inputs
