@@ -61,12 +61,17 @@ object TransactionSyntaxError {
   case class InvalidUpdateProposal(outputs: Seq[Value.UpdateProposal]) extends TransactionSyntaxError
 
   /**
-   * A Syntax error indicating that this transaction contains invalid MergingStatements
+   * A Syntax error indicating that this transaction contains an invalid MergingStatement
    */
-  case class InvalidMergingStatements(statements: Seq[AssetMergingStatement]) extends TransactionSyntaxError
+  case class InvalidMergingStatement(statement: AssetMergingStatement) extends TransactionSyntaxError
+
+  /**
+   * A Syntax error indicating that a merging input in a transaction is non-distinct
+   */
+  case class NonDistinctMergingInput(input: TransactionOutputAddress) extends TransactionSyntaxError
 
   /**
    * A Syntax error indicating that the request merging operation is invalid
    */
-  case class IncompatibleMerge(inputs: Seq[Value.Asset], output: Value.Asset) extends TransactionSyntaxError
+  case class IncompatibleMerge(inputs: Seq[Value], output: Value) extends TransactionSyntaxError
 }

@@ -111,8 +111,8 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError =
-      result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup, asmGroupDup))))
+    val expectedErrors = groupTxos.map(txo => TransactionSyntaxError.NonDistinctMergingInput(txo.outputAddress))
+    val assertError = result.exists(_.forall(expectedErrors.contains))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -130,7 +130,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatement(asmGroup)))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -147,7 +147,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatement(asmGroup)))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -165,7 +165,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatement(asmGroup)))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -183,7 +183,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatement(asmGroup)))
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -191,7 +191,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
   /**
    * input UTXOs are not present in the transaction outputs
    */
-  test("Invalid case, an input UTXO to merge is also present in the transaction outputs") {
+  test("Invalid case, an input UTXO to merge is also present in the transaction outputs (non sufficient funds)") {
     val asmGroup = AssetMergingStatement(groupTxos.map(_.outputAddress), 0)
     val inputs =
       for (txo <- groupTxos)
@@ -201,7 +201,14 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(
+      _.toList.contains(
+        TransactionSyntaxError.InsufficientInputFunds(
+          inputs.map(_.value.value).toList,
+          outputs.map(_.value.value).toList
+        )
+      )
+    )
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -217,7 +224,9 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(
+      _.toList.contains(TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value))
+    )
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -235,7 +244,9 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
 
     val result = validator.validate(testTx).swap
     println(result)
-    val assertError = result.exists(_.toList.contains(TransactionSyntaxError.InvalidMergingStatements(Seq(asmGroup))))
+    val assertError = result.exists(
+      _.toList.contains(TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value))
+    )
     assertEquals(assertError, true)
     assertEquals(result.map(_.toList.size).getOrElse(0), 1)
   }
@@ -270,7 +281,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -294,7 +305,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -320,7 +331,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -350,7 +361,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -378,7 +389,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -409,7 +420,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -437,7 +448,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -460,7 +471,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -488,7 +499,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -516,7 +527,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -547,7 +558,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -575,7 +586,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -598,7 +609,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -626,7 +637,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -654,7 +665,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)
@@ -682,7 +693,7 @@ class TransactionSyntaxInterpreterAssetMergingSpec extends munit.FunSuite with M
     println(result)
     val assertError = result.exists(
       _.toList.contains(
-        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value.getAsset), outputs.head.value.getAsset)
+        TransactionSyntaxError.IncompatibleMerge(inputs.map(_.value), outputs.head.value)
       )
     )
     assertEquals(assertError, true)

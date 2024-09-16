@@ -3,6 +3,7 @@ package co.topl.brambl.validation
 import cats.Applicative
 import cats.data.{Chain, NonEmptyChain, Validated, ValidatedNec}
 import cats.implicits._
+import co.topl.brambl.builders.MergingOps
 import co.topl.brambl.common.ContainsImmutable.ContainsImmutableTOps
 import co.topl.brambl.common.ContainsImmutable.instances._
 import co.topl.brambl.models.TransactionOutputAddress
@@ -11,6 +12,7 @@ import co.topl.brambl.models.transaction.{IoTransaction, SpentTransactionOutput,
 import co.topl.brambl.syntax._
 import co.topl.brambl.validation.algebras.TransactionSyntaxVerifier
 import quivr.models.{Int128, Proof, Proposition}
+
 import scala.util.Try
 
 object TransactionSyntaxInterpreter {
@@ -43,7 +45,9 @@ object TransactionSyntaxInterpreter {
       seriesEqualFundsValidation,
       assetNoRepeatedUtxosValidation,
       mintingValidation,
-      updateProposalValidation
+      updateProposalValidation,
+      mergingDistinctValidation,
+      mergingValidation
     )
 
   /**
@@ -598,4 +602,99 @@ object TransactionSyntaxInterpreter {
 
     Validated.condNec(isValid, (), TransactionSyntaxError.InvalidUpdateProposal(upsOut))
   }
+
+  /**
+   * Validate that the merging inputs are distinct (not re-used in other merging statements)
+   */
+  private def mergingDistinctValidation(transaction: IoTransaction): ValidatedNec[TransactionSyntaxError, Unit] = {
+    val mergingInputs = transaction.mergingStatements.flatMap(
+      _.inputUtxos.distinct
+    ) // distinct within each merging statement since those duplicates are handled via InvalidMergingStatement
+    val repeatedInputs: Seq[TransactionSyntaxError] = mergingInputs
+      .diff(mergingInputs.distinct)
+      .map(
+        TransactionSyntaxError.NonDistinctMergingInput
+      ) // results with a list of inputs that are present in multiple merging statements
+    NonEmptyChain.fromSeq(repeatedInputs) match {
+      case Some(repeated) => Validated.Invalid(repeated)
+      case None           => ().validNec[TransactionSyntaxError]
+    }
+  }
+
+  /**
+   * Validate that the transaction w.r.t the merging statements is valid AND that the merge operations are syntactically valid
+   */
+  private def mergingValidation(transaction: IoTransaction): ValidatedNec[TransactionSyntaxError, Unit] =
+    mergingStatementsValidation(transaction).andThen(_ => mergingCompatibilityValidation(transaction))
+
+  /**
+   * Validate that the transaction w.r.t the merging statements is valid
+   */
+  private def mergingStatementsValidation(transaction: IoTransaction): ValidatedNec[TransactionSyntaxError, Unit] = {
+    val invalidMergingStatements = transaction.mergingStatements.filterNot { statement =>
+      statement.outputIdx < transaction.outputs.size && // output index must be within the bounds of the transaction
+      statement.inputUtxos.length >= 2 && // there must be at least 2 inputs
+      statement.inputUtxos.forall { input =>
+        transaction.inputs.exists(_.address == input)
+      } && // all inputs must be present in the transaction
+      statement.inputUtxos.distinct.length == statement.inputUtxos.length // all inputs must be distinct
+    }
+    NonEmptyChain.fromSeq(invalidMergingStatements.map(TransactionSyntaxError.InvalidMergingStatement)) match {
+      case Some(repeated) => Validated.Invalid(repeated)
+      case None           => ().validNec[TransactionSyntaxError]
+    }
+  }
+
+  /**
+   * Validate that the merge operations are syntactically valid
+   */
+  private def mergingCompatibilityValidation(transaction: IoTransaction): ValidatedNec[TransactionSyntaxError, Unit] = {
+    case class MergingValues(inputs: Seq[Value], output: Value)
+    val mergingValues = transaction.mergingStatements.map(asm =>
+      MergingValues(
+        asm.inputUtxos.map(input => transaction.inputs.find(_.address == input).get.value),
+        transaction.outputs(asm.outputIdx).value
+      )
+    )
+    val invalidMerges = mergingValues.filterNot { mergeValues =>
+      mergeValues.inputs.forall(
+        _.value.isAsset
+      ) && mergeValues.output.value.isAsset && // all inputs and output must be assets
+      mergeValues.inputs
+        .map(in => (in.getAsset.quantity: BigInt))
+        .sum == (mergeValues.output.getAsset.quantity: BigInt) && // The sum of the input quantities must equal the output quantity
+      mergeValues.inputs.forall(
+        _.getAsset.quantityDescriptor == mergeValues.output.getAsset.quantityDescriptor
+      ) && // all inputs must have the same quantityDescriptor as the output
+      mergeValues.inputs.forall(
+        _.getAsset.fungibility == mergeValues.output.getAsset.fungibility
+      ) && // all inputs must have the same fungibility as the output
+      (mergeValues.output.getAsset.fungibility match {
+        case FungibilityType.SERIES =>
+          mergeValues.inputs.forall(in =>
+            in.getAsset.seriesId == mergeValues.output.getAsset.seriesId
+          ) && // all inputs must have the same seriesId as the output
+          mergeValues.output.getAsset.groupId.isEmpty && // the output must not have a groupId
+          mergeValues.output.getAsset.groupAlloy.isDefined && // the output must have a groupAlloy
+          mergeValues.output.getAsset.groupAlloy
+            .contains(MergingOps.getAlloy(mergeValues.inputs.map(_.getAsset))) // the output's groupAlloy must be valid
+        case FungibilityType.GROUP =>
+          mergeValues.inputs.forall(in =>
+            in.getAsset.groupId == mergeValues.output.getAsset.groupId
+          ) && // all inputs must have the same groupId as the output
+          mergeValues.output.getAsset.seriesId.isEmpty && // the output must not have a seriesId
+          mergeValues.output.getAsset.seriesAlloy.isDefined && // the output must have a seriesAlloy
+          mergeValues.output.getAsset.seriesAlloy
+            .contains(MergingOps.getAlloy(mergeValues.inputs.map(_.getAsset))) // the output's seriesAlloy must be valid
+        case _ => false // GROUP_AND_SERIES is not allowed to merge
+      })
+    }
+    NonEmptyChain.fromSeq(
+      invalidMerges.map(vals => TransactionSyntaxError.IncompatibleMerge(vals.inputs, vals.output))
+    ) match {
+      case Some(repeated) => Validated.Invalid(repeated)
+      case None           => ().validNec[TransactionSyntaxError]
+    }
+  }
+
 }
