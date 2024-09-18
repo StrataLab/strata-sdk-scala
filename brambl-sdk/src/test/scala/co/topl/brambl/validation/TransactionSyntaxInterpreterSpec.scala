@@ -174,6 +174,11 @@ class TransactionSyntaxInterpreterSpec extends munit.FunSuite with MockHelpers {
     )
     val validator = TransactionSyntaxInterpreter.make[Id]()
     val result = validator.validate(testTx).swap
-    assertEquals(result.exists(_.toList.contains(TransactionSyntaxError.InconsistentNetworkIDs(Set(MAIN_NETWORK_ID, TEST_NETWORK_ID)))), true)
+    assertEquals(
+      result.exists(
+        _.toList.contains(TransactionSyntaxError.InconsistentNetworkIDs(Set(MAIN_NETWORK_ID, TEST_NETWORK_ID)))
+      ),
+      true
+    )
   }
 }
