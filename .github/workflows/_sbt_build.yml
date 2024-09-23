@@ -99,6 +99,7 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+          number: ${{ steps.finder.outputs.pr }}
       - name: Cleanup before cache
         shell: bash
         run: |
