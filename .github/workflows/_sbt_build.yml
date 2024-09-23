@@ -70,7 +70,7 @@ jobs:
         uses: chetan/git-restore-mtime-action@v1
 
       - name: Compile and Test
-        run: sbt checkPRTestQuick
+        run: sbt checkPR
 
       - name: Upload Test Results
         if: always()
@@ -152,8 +152,7 @@ jobs:
             integration/target/test-reports/**/*.xml
             target/it-reports/**/*.xml
       - name: Aggregate Coverage Reports
-        run: |
-          sbt coverageAggregate
+        run: sbt coverageAggregate
       - name: Code Coverage Report Markdown
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
