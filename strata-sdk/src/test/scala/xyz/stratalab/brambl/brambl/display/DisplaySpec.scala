@@ -10,8 +10,8 @@ import co.topl.brambl.models.Datum
 import co.topl.brambl.models.Event
 import co.topl.brambl.models.box._
 import co.topl.brambl.models.transaction.Schedule
-import co.topl.brambl.syntax.bigIntAsInt128
-import co.topl.brambl.syntax.longAsInt128
+import xyz.stratalab.sdk.syntax.bigIntAsInt128
+import xyz.stratalab.sdk.syntax.longAsInt128
 import xyz.stratalab.sdk.wallet.CredentiallerInterpreter
 import xyz.stratalab.sdk.wallet.WalletApi
 import xyz.stratalab.quivr.api.Proposer

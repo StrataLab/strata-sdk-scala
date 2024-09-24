@@ -4,7 +4,7 @@ import co.topl.brambl.models.box.FungibilityType.{GROUP, SERIES}
 import co.topl.brambl.models.box.QuantityDescriptorType.LIQUID
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction.UnspentTransactionOutput
-import co.topl.brambl.syntax.bigIntAsInt128
+import xyz.stratalab.sdk.syntax.bigIntAsInt128
 import com.google.protobuf.struct.Value.Kind.StringValue
 import com.google.protobuf.struct.{Struct, Value => StrucValue}
 

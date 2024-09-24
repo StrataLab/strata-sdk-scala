@@ -12,7 +12,7 @@ import java.nio.file.{Files, Path, Paths}
 import xyz.stratalab.sdk.builders.TransactionBuilderApi
 import xyz.stratalab.sdk.constants.NetworkConstants._
 import xyz.stratalab.sdk.dataApi.WalletStateAlgebra
-import co.topl.brambl.syntax.cryptoToPbKeyPair
+import xyz.stratalab.sdk.syntax.cryptoToPbKeyPair
 import xyz.stratalab.crypto.generation.KeyInitializer.Instances.extendedEd25519Initializer
 import xyz.stratalab.crypto.signing.{ExtendedEd25519, KeyPair}
 import quivr.models

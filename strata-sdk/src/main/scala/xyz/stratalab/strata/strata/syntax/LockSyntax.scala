@@ -1,4 +1,4 @@
-package co.topl.brambl.syntax
+package xyz.stratalab.sdk.syntax
 
 import xyz.stratalab.sdk.common.ContainsEvidence
 import xyz.stratalab.sdk.common.ContainsImmutable.instances.lockImmutable

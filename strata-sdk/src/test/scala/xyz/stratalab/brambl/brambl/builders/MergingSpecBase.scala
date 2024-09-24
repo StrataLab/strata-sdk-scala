@@ -6,7 +6,7 @@ import xyz.stratalab.sdk.builders.MergingSpecBase.{BuildAssetMergeTransaction, B
 import co.topl.brambl.models.{LockAddress, TransactionOutputAddress}
 import co.topl.brambl.models.box.{Lock, QuantityDescriptorType, Value}
 import co.topl.brambl.models.transaction.{IoTransaction, UnspentTransactionOutput}
-import co.topl.brambl.syntax.{groupPolicyAsGroupPolicySyntaxOps, seriesPolicyAsSeriesPolicySyntaxOps}
+import xyz.stratalab.sdk.syntax.{groupPolicyAsGroupPolicySyntaxOps, seriesPolicyAsSeriesPolicySyntaxOps}
 import co.topl.genus.services.Txo
 import com.google.protobuf.ByteString
 import com.google.protobuf.struct.Struct

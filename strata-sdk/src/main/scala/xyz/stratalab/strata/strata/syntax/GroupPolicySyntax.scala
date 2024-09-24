@@ -1,4 +1,4 @@
-package co.topl.brambl.syntax
+package xyz.stratalab.sdk.syntax
 
 import xyz.stratalab.sdk.common.ContainsImmutable.ContainsImmutableTOps
 import xyz.stratalab.sdk.common.ContainsImmutable.instances.groupPolicyEventImmutable

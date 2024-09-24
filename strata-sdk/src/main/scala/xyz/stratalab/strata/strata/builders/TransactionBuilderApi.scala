@@ -12,7 +12,7 @@ import co.topl.brambl.models._
 import co.topl.brambl.models.box.Value.{Value => BoxValue}
 import co.topl.brambl.models.box._
 import co.topl.brambl.models.transaction.{IoTransaction, Schedule, SpentTransactionOutput, UnspentTransactionOutput}
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   bigIntAsInt128,
   groupPolicyAsGroupPolicySyntaxOps,
   int128AsBigInt,

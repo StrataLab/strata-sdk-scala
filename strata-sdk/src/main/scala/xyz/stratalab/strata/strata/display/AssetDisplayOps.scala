@@ -3,7 +3,7 @@ package xyz.stratalab.sdk.display
 import xyz.stratalab.sdk.display.DisplayOps.DisplayTOps
 import co.topl.brambl.models.box.{AssetMergingStatement, AssetMintingStatement, Value}
 import xyz.stratalab.sdk.utils.Encoding
-import co.topl.brambl.syntax.int128AsBigInt
+import xyz.stratalab.sdk.syntax.int128AsBigInt
 
 trait AssetDisplayOps {
 

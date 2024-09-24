@@ -1,4 +1,4 @@
-package co.topl.brambl.syntax
+package xyz.stratalab.sdk.syntax
 
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.box.Value.{Value => BoxValue}

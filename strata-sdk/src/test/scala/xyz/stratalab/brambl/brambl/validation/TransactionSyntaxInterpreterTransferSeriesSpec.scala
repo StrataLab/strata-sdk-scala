@@ -8,7 +8,7 @@ import co.topl.brambl.models.TransactionOutputAddress
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction.SpentTransactionOutput
 import co.topl.brambl.models.transaction.UnspentTransactionOutput
-import co.topl.brambl.syntax._
+import xyz.stratalab.sdk.syntax._
 
 /**
  * Test to coverage this specific syntax validation: Transfer series

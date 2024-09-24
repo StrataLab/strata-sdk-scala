@@ -16,7 +16,7 @@ import co.topl.brambl.models.Event.{GroupPolicy, SeriesPolicy}
 import co.topl.brambl.models.box.{AssetMintingStatement, Lock, Value}
 import co.topl.brambl.models.transaction.{IoTransaction, SpentTransactionOutput, UnspentTransactionOutput}
 import co.topl.brambl.models.{LockAddress, TransactionOutputAddress}
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   assetAsBoxVal,
   groupAsBoxVal,
   groupPolicyAsGroupPolicySyntaxOps,

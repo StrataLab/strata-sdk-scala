@@ -11,7 +11,7 @@ import io.circe.syntax.EncoderOps
 import xyz.stratalab.crypto.encryption.VaultStore.Codecs._
 import xyz.stratalab.crypto.generation.mnemonic.EntropyFailures.PhraseToEntropyFailure
 import xyz.stratalab.crypto.generation.mnemonic.PhraseFailures.InvalidWordLength
-import co.topl.brambl.syntax.{pbKeyPairToCryptoKeyPair, pbVkToCryptoVk}
+import xyz.stratalab.sdk.syntax.{pbKeyPairToCryptoKeyPair, pbVkToCryptoVk}
 
 class WalletApiSpec extends munit.CatsEffectSuite with MockHelpers {
   implicit val idToId: FunctionK[F, F] = FunctionK.id[F]

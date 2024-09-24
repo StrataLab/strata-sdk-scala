@@ -12,16 +12,16 @@ import co.topl.brambl.models.box.QuantityDescriptorType.FRACTIONABLE
 import co.topl.brambl.models.box.QuantityDescriptorType.IMMUTABLE
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction.IoTransaction
-import co.topl.brambl.syntax.LvlType
-import co.topl.brambl.syntax.assetAsBoxVal
-import co.topl.brambl.syntax.bigIntAsInt128
-import co.topl.brambl.syntax.groupAsBoxVal
-import co.topl.brambl.syntax.groupPolicyAsGroupPolicySyntaxOps
-import co.topl.brambl.syntax.int128AsBigInt
-import co.topl.brambl.syntax.ioTransactionAsTransactionSyntaxOps
-import co.topl.brambl.syntax.seriesAsBoxVal
-import co.topl.brambl.syntax.seriesPolicyAsSeriesPolicySyntaxOps
-import co.topl.brambl.syntax.valueToTypeIdentifierSyntaxOps
+import xyz.stratalab.sdk.syntax.LvlType
+import xyz.stratalab.sdk.syntax.assetAsBoxVal
+import xyz.stratalab.sdk.syntax.bigIntAsInt128
+import xyz.stratalab.sdk.syntax.groupAsBoxVal
+import xyz.stratalab.sdk.syntax.groupPolicyAsGroupPolicySyntaxOps
+import xyz.stratalab.sdk.syntax.int128AsBigInt
+import xyz.stratalab.sdk.syntax.ioTransactionAsTransactionSyntaxOps
+import xyz.stratalab.sdk.syntax.seriesAsBoxVal
+import xyz.stratalab.sdk.syntax.seriesPolicyAsSeriesPolicySyntaxOps
+import xyz.stratalab.sdk.syntax.valueToTypeIdentifierSyntaxOps
 import quivr.models.Int128
 
 class TransactionBuilderInterpreterAssetMintingSpec extends TransactionBuilderInterpreterSpecBase {

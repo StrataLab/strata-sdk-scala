@@ -17,7 +17,7 @@ import xyz.stratalab.sdk.dataApi.WalletStateAlgebra
 import co.topl.brambl.models.box.Attestation
 import xyz.stratalab.crypto.signing.ExtendedEd25519
 import com.google.protobuf.ByteString
-import co.topl.brambl.syntax.pbKeyPairToCryptoKeyPair
+import xyz.stratalab.sdk.syntax.pbKeyPairToCryptoKeyPair
 
 object CredentiallerInterpreter {
 

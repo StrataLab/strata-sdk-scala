@@ -3,7 +3,7 @@ package xyz.stratalab.sdk.dataApi
 import cats.arrow.FunctionK
 import cats.data.Kleisli
 import cats.effect.kernel.{Resource, Sync}
-import co.topl.brambl.syntax.ioTransactionAsTransactionSyntaxOps
+import xyz.stratalab.sdk.syntax.ioTransactionAsTransactionSyntaxOps
 import co.topl.node.services.{NodeRpcGrpc, _}
 import io.grpc.ManagedChannel
 

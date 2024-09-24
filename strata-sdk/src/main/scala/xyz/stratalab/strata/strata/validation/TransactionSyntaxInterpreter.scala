@@ -9,7 +9,7 @@ import xyz.stratalab.sdk.common.ContainsImmutable.instances._
 import co.topl.brambl.models.TransactionOutputAddress
 import co.topl.brambl.models.box._
 import co.topl.brambl.models.transaction.{IoTransaction, SpentTransactionOutput, UnspentTransactionOutput}
-import co.topl.brambl.syntax._
+import xyz.stratalab.sdk.syntax._
 import xyz.stratalab.sdk.validation.algebras.TransactionSyntaxVerifier
 import quivr.models.{Int128, Proof, Proposition}
 

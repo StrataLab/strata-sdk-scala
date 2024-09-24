@@ -4,8 +4,8 @@ import co.topl.brambl.models.box.FungibilityType.GROUP
 import co.topl.brambl.models.box.QuantityDescriptorType.LIQUID
 import co.topl.brambl.models.box.{AssetMergingStatement, Value}
 import co.topl.brambl.models.transaction.IoTransaction
-import co.topl.brambl.syntax.ioTransactionAsTransactionSyntaxOps
-import co.topl.brambl.syntax.bigIntAsInt128
+import xyz.stratalab.sdk.syntax.ioTransactionAsTransactionSyntaxOps
+import xyz.stratalab.sdk.syntax.bigIntAsInt128
 import com.google.protobuf.struct.{Struct, Value => StructValue}
 import com.google.protobuf.struct.Value.Kind.StringValue
 

@@ -3,7 +3,7 @@ package xyz.stratalab.sdk.builders
 import co.topl.brambl.models.transaction.IoTransaction
 import co.topl.brambl.models.Datum
 import co.topl.brambl.models.box.Value
-import co.topl.brambl.syntax.{ioTransactionAsTransactionSyntaxOps, valueToTypeIdentifierSyntaxOps, LvlType}
+import xyz.stratalab.sdk.syntax.{ioTransactionAsTransactionSyntaxOps, valueToTypeIdentifierSyntaxOps, LvlType}
 
 class TransactionBuilderInterpreterSeriesMintingSpec extends TransactionBuilderInterpreterSpecBase {
 

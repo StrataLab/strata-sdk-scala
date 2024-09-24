@@ -1,7 +1,7 @@
 package xyz.stratalab.sdk.builders
 
 import cats.implicits.catsSyntaxOptionId
-import co.topl.brambl.syntax.{bigIntAsInt128, valueToQuantitySyntaxOps, valueToTypeIdentifierSyntaxOps}
+import xyz.stratalab.sdk.syntax.{bigIntAsInt128, valueToQuantitySyntaxOps, valueToTypeIdentifierSyntaxOps}
 
 class AggregationOpsSpec extends TransactionBuilderInterpreterSpecBase {
 

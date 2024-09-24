@@ -3,7 +3,7 @@ package xyz.stratalab.sdk.display
 import xyz.stratalab.sdk.display.DisplayOps.DisplayTOps
 import co.topl.brambl.models.TransactionId
 import co.topl.brambl.models.transaction.IoTransaction
-import co.topl.brambl.syntax.ioTransactionAsTransactionSyntaxOps
+import xyz.stratalab.sdk.syntax.ioTransactionAsTransactionSyntaxOps
 import xyz.stratalab.sdk.utils.Encoding
 
 trait TransactionDisplayOps {

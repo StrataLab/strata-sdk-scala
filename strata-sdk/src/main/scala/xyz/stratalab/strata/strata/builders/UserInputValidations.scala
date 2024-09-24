@@ -5,7 +5,7 @@ import cats.implicits.{catsSyntaxEitherId, catsSyntaxValidatedIdBinCompat0, toFo
 import co.topl.brambl.models.box.Value._
 import co.topl.brambl.models.box.{AssetMintingStatement, QuantityDescriptorType}
 import co.topl.brambl.models.{LockAddress, SeriesId, TransactionOutputAddress}
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   int128AsBigInt,
   longAsInt128,
   valueToQuantityDescriptorSyntaxOps,

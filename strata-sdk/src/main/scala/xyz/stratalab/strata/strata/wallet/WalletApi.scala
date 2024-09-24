@@ -12,7 +12,7 @@ import xyz.stratalab.crypto.encryption.cipher.Cipher
 import xyz.stratalab.crypto.encryption.cipher.Aes
 import xyz.stratalab.crypto.signing.ExtendedEd25519
 import quivr.models._
-import co.topl.brambl.syntax.{cryptoToPbKeyPair, cryptoVkToPbVk, pbKeyPairToCryptoKeyPair, pbVkToCryptoVk}
+import xyz.stratalab.sdk.syntax.{cryptoToPbKeyPair, cryptoVkToPbVk, pbKeyPairToCryptoKeyPair, pbVkToCryptoVk}
 import cats.implicits._
 
 import cats.data.EitherT

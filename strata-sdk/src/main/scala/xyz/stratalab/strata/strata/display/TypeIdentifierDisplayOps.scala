@@ -1,7 +1,7 @@
 package xyz.stratalab.sdk.display
 
 import xyz.stratalab.sdk.display.DisplayOps.DisplayTOps
-import co.topl.brambl.syntax.{AssetType, GroupType, LvlType, SeriesType, ToplType, ValueTypeIdentifier}
+import xyz.stratalab.sdk.syntax.{AssetType, GroupType, LvlType, SeriesType, ToplType, ValueTypeIdentifier}
 import xyz.stratalab.sdk.utils.Encoding
 
 trait TypeIdentifierDisplayOps {

@@ -8,7 +8,7 @@ import co.topl.brambl.models.box.Value.Asset
 import co.topl.brambl.models.box.{FungibilityType, Value}
 import co.topl.brambl.models.transaction.UnspentTransactionOutput
 import co.topl.brambl.models.{GroupId, LockAddress, SeriesId}
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   assetToAssetTypeSyntaxOps,
   bigIntAsInt128,
   int128AsBigInt,

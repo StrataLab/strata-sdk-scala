@@ -4,7 +4,7 @@ import co.topl.brambl.models.box.FungibilityType.GROUP_AND_SERIES
 import co.topl.brambl.models.box.QuantityDescriptorType.LIQUID
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction.UnspentTransactionOutput
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   bigIntAsInt128,
   groupPolicyAsGroupPolicySyntaxOps,
   int128AsBigInt,

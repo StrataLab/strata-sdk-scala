@@ -2,9 +2,9 @@ package xyz.stratalab.sdk.builders
 
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction.IoTransaction
-import co.topl.brambl.syntax.LvlType
-import co.topl.brambl.syntax.ioTransactionAsTransactionSyntaxOps
-import co.topl.brambl.syntax.valueToTypeIdentifierSyntaxOps
+import xyz.stratalab.sdk.syntax.LvlType
+import xyz.stratalab.sdk.syntax.ioTransactionAsTransactionSyntaxOps
+import xyz.stratalab.sdk.syntax.valueToTypeIdentifierSyntaxOps
 
 class TransactionBuilderInterpreterLvlsTransferSpec extends TransactionBuilderInterpreterSpecBase {
 

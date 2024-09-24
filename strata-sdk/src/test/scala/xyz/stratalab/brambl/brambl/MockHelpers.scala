@@ -17,7 +17,7 @@ import co.topl.brambl.models.box.Lock
 import co.topl.brambl.models.box.QuantityDescriptorType.{ACCUMULATOR, FRACTIONABLE, IMMUTABLE}
 import co.topl.brambl.models.box.Value
 import co.topl.brambl.models.transaction._
-import co.topl.brambl.syntax.{assetAsBoxVal, groupPolicyAsGroupPolicySyntaxOps, seriesPolicyAsSeriesPolicySyntaxOps}
+import xyz.stratalab.sdk.syntax.{assetAsBoxVal, groupPolicyAsGroupPolicySyntaxOps, seriesPolicyAsSeriesPolicySyntaxOps}
 import xyz.stratalab.crypto.hash.Blake2b256
 import xyz.stratalab.quivr.api.Proposer
 import xyz.stratalab.quivr.api.Prover
@@ -34,7 +34,7 @@ import quivr.models.{
   VerificationKey,
   Witness
 }
-import co.topl.brambl.syntax.{cryptoToPbKeyPair, pbKeyPairToCryptoKeyPair}
+import xyz.stratalab.sdk.syntax.{cryptoToPbKeyPair, pbKeyPairToCryptoKeyPair}
 import xyz.stratalab.crypto.generation.Bip32Indexes
 import xyz.stratalab.crypto.hash.implicits.sha256Hash
 import xyz.stratalab.crypto.signing.ExtendedEd25519

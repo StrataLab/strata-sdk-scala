@@ -2,7 +2,7 @@ package xyz.stratalab.sdk.builders
 
 import co.topl.brambl.models.box.QuantityDescriptorType.LIQUID
 import co.topl.brambl.models.box.Value._
-import co.topl.brambl.syntax.{
+import xyz.stratalab.sdk.syntax.{
   bigIntAsInt128,
   int128AsBigInt,
   valueToQuantitySyntaxOps,

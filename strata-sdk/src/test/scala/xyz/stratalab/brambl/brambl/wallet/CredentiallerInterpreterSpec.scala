@@ -12,7 +12,7 @@ import xyz.stratalab.sdk.dataApi.WalletStateAlgebra
 import co.topl.brambl.models.box._
 import co.topl.brambl.models.transaction.IoTransaction
 import co.topl.brambl.models.{Datum, Event, Indices}
-import co.topl.brambl.syntax.{cryptoToPbKeyPair, pbKeyPairToCryptoKeyPair}
+import xyz.stratalab.sdk.syntax.{cryptoToPbKeyPair, pbKeyPairToCryptoKeyPair}
 import xyz.stratalab.sdk.validation.TransactionAuthorizationError.AuthorizationFailed
 import xyz.stratalab.sdk.validation.TransactionSyntaxError
 import xyz.stratalab.sdk.{Context, MockHelpers, MockWalletKeyApi, MockWalletStateApi}

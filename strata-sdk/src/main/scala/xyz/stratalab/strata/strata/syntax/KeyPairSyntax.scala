@@ -1,4 +1,4 @@
-package co.topl.brambl.syntax
+package xyz.stratalab.sdk.syntax
 
 import xyz.stratalab.crypto.signing
 import xyz.stratalab.crypto.signing.ExtendedEd25519

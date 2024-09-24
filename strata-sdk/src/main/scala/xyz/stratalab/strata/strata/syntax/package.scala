@@ -1,4 +1,4 @@
-package co.topl.brambl
+package xyz.stratalab.sdk
 
 package object syntax
     extends LockSyntax
