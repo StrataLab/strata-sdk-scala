@@ -4,10 +4,8 @@ import cats.data.{Chain, Validated, ValidatedNec}
 import cats.implicits.{catsSyntaxValidatedIdBinCompat0, toFoldableOps}
 import xyz.stratalab.sdk.common.ContainsImmutable.ContainsImmutableTOps
 import xyz.stratalab.sdk.common.ContainsImmutable.instances._
-import co.topl.brambl.models.box.Value.Asset
-import co.topl.brambl.models.box.{FungibilityType, Value}
-import co.topl.brambl.models.transaction.UnspentTransactionOutput
-import co.topl.brambl.models.{GroupId, LockAddress, SeriesId}
+import co.topl.brambl.models.box.Value
+import co.topl.brambl.models.{GroupId, SeriesId}
 import xyz.stratalab.sdk.syntax.{
   assetToAssetTypeSyntaxOps,
   bigIntAsInt128,
