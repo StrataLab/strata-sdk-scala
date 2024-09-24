@@ -144,8 +144,7 @@ jobs:
           ls -lai
           chmod 777 setupBifrostRegtest.sh
           ./setupBifrostRegtest.sh
-          sbt "integration / test" 
-          sbt "integration / coverageReport" 
+          sbt "integration / test"
           docker kill bitcoind
           docker kill bitcoind2
           docker kill bifrost
