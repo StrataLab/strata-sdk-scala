@@ -1,4 +1,4 @@
-package co.topl.crypto.encryption.kdf
+package xyz.stratalab.crypto.encryption.kdf
 
 import cats.Id
 import org.scalatest.matchers.should.Matchers

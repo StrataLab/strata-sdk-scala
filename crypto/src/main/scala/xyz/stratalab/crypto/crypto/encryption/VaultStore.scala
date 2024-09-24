@@ -1,13 +1,13 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Monad
 import cats.implicits.catsSyntaxEitherId
 import cats.implicits.toFlatMapOps
 import cats.implicits.toFunctorOps
-import co.topl.crypto.encryption.cipher.Cipher
-import co.topl.crypto.encryption.cipher.Codecs._
-import co.topl.crypto.encryption.kdf.Codecs._
-import co.topl.crypto.encryption.kdf.Kdf
+import xyz.stratalab.crypto.encryption.cipher.Cipher
+import xyz.stratalab.crypto.encryption.cipher.Codecs._
+import xyz.stratalab.crypto.encryption.kdf.Codecs._
+import xyz.stratalab.crypto.encryption.kdf.Kdf
 import io.circe.Decoder
 import io.circe.Decoder.Result
 import io.circe.DecodingFailure

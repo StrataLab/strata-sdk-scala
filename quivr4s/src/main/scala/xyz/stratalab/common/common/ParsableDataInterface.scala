@@ -1,4 +1,4 @@
-package co.topl.common
+package xyz.stratalab.common
 
 import quivr.models.Data
 

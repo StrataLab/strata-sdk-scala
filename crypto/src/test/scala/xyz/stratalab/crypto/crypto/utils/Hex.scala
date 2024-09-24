@@ -1,4 +1,4 @@
-package co.topl.crypto.utils
+package xyz.stratalab.crypto.utils
 
 object Hex {
 

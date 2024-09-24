@@ -1,4 +1,4 @@
-package co.topl.common
+package xyz.stratalab.common
 
 trait ContextualValidation[F[_], E, T, Context] {
 

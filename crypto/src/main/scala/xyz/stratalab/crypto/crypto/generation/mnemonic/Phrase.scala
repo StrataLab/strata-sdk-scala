@@ -1,8 +1,8 @@
-package co.topl.crypto.generation.mnemonic
+package xyz.stratalab.crypto.generation.mnemonic
 
 import cats.implicits._
-import co.topl.crypto.generation.mnemonic.Language.LanguageWordList
-import co.topl.crypto.hash.sha256
+import xyz.stratalab.crypto.generation.mnemonic.Language.LanguageWordList
+import xyz.stratalab.crypto.hash.sha256
 
 /**
  * A mnemonic phrase of words from a valid language list.

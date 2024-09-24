@@ -1,6 +1,6 @@
-package co.topl.crypto.signing
+package xyz.stratalab.crypto.signing
 
-import co.topl.crypto.generation.{Bip32Index, Bip32Indexes}
+import xyz.stratalab.crypto.generation.{Bip32Index, Bip32Indexes}
 import org.bouncycastle.crypto.digests.SHA512Digest
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.params.KeyParameter

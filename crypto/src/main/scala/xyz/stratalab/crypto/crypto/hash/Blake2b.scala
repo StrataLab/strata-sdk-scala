@@ -1,6 +1,6 @@
-package co.topl.crypto.hash
+package xyz.stratalab.crypto.hash
 
-import co.topl.crypto.hash.digest.Digest
+import xyz.stratalab.crypto.hash.digest.Digest
 import org.bouncycastle.crypto.digests.Blake2bDigest
 
 /**

@@ -1,4 +1,4 @@
-package co.topl
+package xyz.stratalab
 
 package object quivr {
 

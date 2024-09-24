@@ -1,11 +1,11 @@
-package co.topl.crypto.signing
+package xyz.stratalab.crypto.signing
 
-import co.topl.crypto.generation.{Bip32Index, Bip32Indexes}
-import co.topl.crypto.generation.mnemonic.Entropy
-import co.topl.crypto.generation.KeyInitializer.Instances.extendedEd25519Initializer
-import co.topl.crypto.utils.EntropySupport._
-import co.topl.crypto.utils.Hex.implicits.Ops
-import co.topl.crypto.utils.{Hex, TestVector}
+import xyz.stratalab.crypto.generation.{Bip32Index, Bip32Indexes}
+import xyz.stratalab.crypto.generation.mnemonic.Entropy
+import xyz.stratalab.crypto.generation.KeyInitializer.Instances.extendedEd25519Initializer
+import xyz.stratalab.crypto.utils.EntropySupport._
+import xyz.stratalab.crypto.utils.Hex.implicits.Ops
+import xyz.stratalab.crypto.utils.{Hex, TestVector}
 import io.circe.{Decoder, HCursor}
 import io.circe.generic.semiauto.deriveDecoder
 import org.scalatest.matchers.should.Matchers

@@ -1,9 +1,9 @@
-package co.topl.crypto.accumulators.merkle
+package xyz.stratalab.crypto.accumulators.merkle
 
-import co.topl.crypto.accumulators.{LeafData, Side}
-import co.topl.crypto.hash.Hash
-import co.topl.crypto.hash.digest.Digest
-import co.topl.crypto.hash.digest.implicits._
+import xyz.stratalab.crypto.accumulators.{LeafData, Side}
+import xyz.stratalab.crypto.hash.Hash
+import xyz.stratalab.crypto.hash.digest.Digest
+import xyz.stratalab.crypto.hash.digest.implicits._
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq

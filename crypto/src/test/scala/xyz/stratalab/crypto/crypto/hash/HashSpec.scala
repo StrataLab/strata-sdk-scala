@@ -1,7 +1,7 @@
-package co.topl.crypto.hash
+package xyz.stratalab.crypto.hash
 
-import co.topl.crypto.hash.digest.Digest
-import co.topl.crypto.utils.Hex
+import xyz.stratalab.crypto.hash.digest.Digest
+import xyz.stratalab.crypto.utils.Hex
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks

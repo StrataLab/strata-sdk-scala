@@ -1,8 +1,8 @@
-package co.topl.crypto.generation
+package xyz.stratalab.crypto.generation
 
 import cats.implicits._
-import co.topl.crypto.generation.mnemonic.{Entropy, EntropyFailure, Language}
-import co.topl.crypto.signing._
+import xyz.stratalab.crypto.generation.mnemonic.{Entropy, EntropyFailure, Language}
+import xyz.stratalab.crypto.signing._
 
 import java.util.UUID
 

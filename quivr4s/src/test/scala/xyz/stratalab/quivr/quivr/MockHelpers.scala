@@ -1,12 +1,12 @@
-package co.topl.quivr
+package xyz.stratalab.quivr
 
 import cats.Id
 import cats.implicits._
 import co.topl.brambl.models.{Datum, Event}
-import co.topl.common.ParsableDataInterface
-import co.topl.crypto.hash.Blake2b256
-import co.topl.quivr.algebras.{DigestVerifier, SignatureVerifier}
-import co.topl.quivr.runtime.{DynamicContext, QuivrRuntimeError, QuivrRuntimeErrors}
+import xyz.stratalab.common.ParsableDataInterface
+import xyz.stratalab.crypto.hash.Blake2b256
+import xyz.stratalab.quivr.algebras.{DigestVerifier, SignatureVerifier}
+import xyz.stratalab.quivr.runtime.{DynamicContext, QuivrRuntimeError, QuivrRuntimeErrors}
 import com.google.protobuf.ByteString
 import quivr.models._
 

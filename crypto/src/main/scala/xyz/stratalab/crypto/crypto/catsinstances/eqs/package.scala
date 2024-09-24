@@ -1,4 +1,4 @@
-package co.topl.crypto.catsinstances
+package xyz.stratalab.crypto.catsinstances
 
 package object eqs {
   trait Implicits extends EqInstances

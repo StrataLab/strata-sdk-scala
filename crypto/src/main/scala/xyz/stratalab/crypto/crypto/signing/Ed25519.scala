@@ -1,4 +1,4 @@
-package co.topl.crypto.signing
+package xyz.stratalab.crypto.signing
 
 import Ed25519.{PublicKey, SecretKey}
 

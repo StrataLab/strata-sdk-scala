@@ -1,9 +1,9 @@
-package co.topl.brambl.servicekit
+package xyz.stratalab.sdk.servicekit
 
 import cats.effect.IO
-import co.topl.brambl.dataApi.{FellowshipStorageAlgebra, WalletFellowship}
+import xyz.stratalab.sdk.dataApi.{FellowshipStorageAlgebra, WalletFellowship}
 import munit.CatsEffectSuite
-import co.topl.brambl.constants.NetworkConstants
+import xyz.stratalab.sdk.constants.NetworkConstants
 
 class FellowshipStorageApiSpec extends CatsEffectSuite with BaseSpec {
 

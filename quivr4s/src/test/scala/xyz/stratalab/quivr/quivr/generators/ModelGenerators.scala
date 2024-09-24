@@ -1,4 +1,4 @@
-package co.topl.quivr.generators
+package xyz.stratalab.quivr.generators
 
 import com.google.protobuf.ByteString
 import org.scalacheck.{Arbitrary, Gen}

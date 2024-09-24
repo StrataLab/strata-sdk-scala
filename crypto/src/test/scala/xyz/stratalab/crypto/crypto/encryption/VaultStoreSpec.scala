@@ -1,11 +1,11 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Id
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import co.topl.crypto.encryption.kdf.SCrypt
-import co.topl.crypto.encryption.cipher.Aes
+import xyz.stratalab.crypto.encryption.kdf.SCrypt
+import xyz.stratalab.crypto.encryption.cipher.Aes
 import org.scalatest.EitherValues
 
 class VaultStoreSpec extends AnyPropSpec with ScalaCheckDrivenPropertyChecks with Matchers with EitherValues {

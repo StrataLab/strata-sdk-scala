@@ -1,15 +1,15 @@
-package co.topl.crypto.generation
+package xyz.stratalab.crypto.generation
 
 import cats.scalatest.EitherValues
-import co.topl.crypto.generation.mnemonic._
-import co.topl.crypto.signing.{Ed25519, ExtendedEd25519}
-import co.topl.crypto.utils.TestVector
+import xyz.stratalab.crypto.generation.mnemonic._
+import xyz.stratalab.crypto.signing.{Ed25519, ExtendedEd25519}
+import xyz.stratalab.crypto.utils.TestVector
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.{Decoder, HCursor}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import co.topl.crypto.utils.Hex.implicits.Ops
+import xyz.stratalab.crypto.utils.Hex.implicits.Ops
 
 /**
  * test vectors adapted from multiple sources:

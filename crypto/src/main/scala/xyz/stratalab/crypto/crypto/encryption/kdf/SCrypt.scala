@@ -1,4 +1,4 @@
-package co.topl.crypto.encryption.kdf
+package xyz.stratalab.crypto.encryption.kdf
 
 import cats.Applicative
 import cats.implicits.catsSyntaxApplicativeId

@@ -1,4 +1,4 @@
-package co.topl.crypto.encryption.cipher
+package xyz.stratalab.crypto.encryption.cipher
 
 import cats.Id
 import org.scalatest.propspec.AnyPropSpec

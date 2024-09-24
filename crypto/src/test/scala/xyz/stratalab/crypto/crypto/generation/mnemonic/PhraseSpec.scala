@@ -1,6 +1,6 @@
-package co.topl.crypto.generation.mnemonic
+package xyz.stratalab.crypto.generation.mnemonic
 
-import co.topl.crypto.utils.Generators
+import xyz.stratalab.crypto.utils.Generators
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.{ScalaCheckDrivenPropertyChecks, ScalaCheckPropertyChecks}

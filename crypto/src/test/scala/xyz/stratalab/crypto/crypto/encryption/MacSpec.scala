@@ -1,7 +1,7 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Id
-import co.topl.crypto.utils.randomBytes
+import xyz.stratalab.crypto.utils.randomBytes
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks

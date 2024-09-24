@@ -1,10 +1,10 @@
-package co.topl.crypto.accumulators
+package xyz.stratalab.crypto.accumulators
 
-import co.topl.crypto.accumulators.merkle.{Leaf, MerkleTree}
-import co.topl.crypto.hash.digest.{Digest, Digest32}
-import co.topl.crypto.hash.implicits._
-import co.topl.crypto.hash.{Blake2b, Hash}
-import co.topl.crypto.utils.randomBytes
+import xyz.stratalab.crypto.accumulators.merkle.{Leaf, MerkleTree}
+import xyz.stratalab.crypto.hash.digest.{Digest, Digest32}
+import xyz.stratalab.crypto.hash.implicits._
+import xyz.stratalab.crypto.hash.{Blake2b, Hash}
+import xyz.stratalab.crypto.utils.randomBytes
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec

@@ -1,14 +1,14 @@
-package co.topl.brambl.servicekit
+package xyz.stratalab.sdk.servicekit
 
 import cats.effect.IO
-import co.topl.brambl.builders.TransactionBuilderApi.implicits.lockAddressOps
-import co.topl.brambl.builders.locks.{LockTemplate, PropositionTemplate}
-import co.topl.brambl.common.ContainsEvidence.Ops
-import co.topl.brambl.common.ContainsImmutable.instances._
-import co.topl.brambl.constants.NetworkConstants
+import xyz.stratalab.sdk.builders.TransactionBuilderApi.implicits.lockAddressOps
+import xyz.stratalab.sdk.builders.locks.{LockTemplate, PropositionTemplate}
+import xyz.stratalab.sdk.common.ContainsEvidence.Ops
+import xyz.stratalab.sdk.common.ContainsImmutable.instances._
+import xyz.stratalab.sdk.constants.NetworkConstants
 import co.topl.brambl.models.{Indices, LockAddress, LockId}
 import co.topl.brambl.models.box.Lock
-import co.topl.brambl.utils.Encoding
+import xyz.stratalab.sdk.utils.Encoding
 import com.google.protobuf.ByteString
 import munit.CatsEffectSuite
 import quivr.models.{Digest, Preimage, Proposition}

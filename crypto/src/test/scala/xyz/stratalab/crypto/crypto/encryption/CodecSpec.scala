@@ -1,13 +1,13 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Id
-import co.topl.crypto.encryption.cipher.Aes.Codecs._
-import co.topl.crypto.encryption.cipher.Codecs._
-import co.topl.crypto.encryption.cipher.Aes
-import co.topl.crypto.encryption.kdf.SCrypt.Codecs._
-import co.topl.crypto.encryption.kdf.Codecs._
-import co.topl.crypto.encryption.kdf.SCrypt
-import co.topl.crypto.encryption.VaultStore.Codecs._
+import xyz.stratalab.crypto.encryption.cipher.Aes.Codecs._
+import xyz.stratalab.crypto.encryption.cipher.Codecs._
+import xyz.stratalab.crypto.encryption.cipher.Aes
+import xyz.stratalab.crypto.encryption.kdf.SCrypt.Codecs._
+import xyz.stratalab.crypto.encryption.kdf.Codecs._
+import xyz.stratalab.crypto.encryption.kdf.SCrypt
+import xyz.stratalab.crypto.encryption.VaultStore.Codecs._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks

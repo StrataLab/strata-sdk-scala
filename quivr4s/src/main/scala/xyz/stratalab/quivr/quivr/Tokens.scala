@@ -1,4 +1,4 @@
-package co.topl.quivr
+package xyz.stratalab.quivr
 
 /**
  * See spec at https://github.com/Topl/protobuf-specs/blob/main/quivr/models/proof.proto

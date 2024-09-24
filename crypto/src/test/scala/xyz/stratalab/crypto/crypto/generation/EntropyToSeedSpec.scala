@@ -1,8 +1,8 @@
-package co.topl.crypto.generation
+package xyz.stratalab.crypto.generation
 
 import cats.scalatest.EitherValues
-import co.topl.crypto.generation.mnemonic.{Entropy, EntropyTestVectorHelper}
-import co.topl.crypto.utils.{Hex, TestVector}
+import xyz.stratalab.crypto.generation.mnemonic.{Entropy, EntropyTestVectorHelper}
+import xyz.stratalab.crypto.utils.{Hex, TestVector}
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.{Decoder, HCursor}
 import org.scalatest.matchers.should.Matchers

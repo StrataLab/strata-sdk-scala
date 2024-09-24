@@ -1,16 +1,16 @@
-package co.topl.quivr.api
+package xyz.stratalab.quivr.api
 
 import cats._
 import cats.data.OptionT
 import cats.implicits._
-import co.topl.crypto.hash.Blake2b256
-import co.topl.quivr._
-import co.topl.quivr.runtime.QuivrRuntimeErrors.ValidationError.{
+import xyz.stratalab.crypto.hash.Blake2b256
+import xyz.stratalab.quivr._
+import xyz.stratalab.quivr.runtime.QuivrRuntimeErrors.ValidationError.{
   EvaluationAuthorizationFailed,
   LockedPropositionIsUnsatisfiable,
   MessageAuthorizationFailed
 }
-import co.topl.quivr.runtime.{DynamicContext, QuivrRuntimeError}
+import xyz.stratalab.quivr.runtime.{DynamicContext, QuivrRuntimeError}
 import quivr.models._
 
 import java.nio.charset.StandardCharsets

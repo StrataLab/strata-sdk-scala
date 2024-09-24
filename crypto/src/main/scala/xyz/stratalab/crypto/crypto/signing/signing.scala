@@ -1,4 +1,4 @@
-package co.topl.crypto
+package xyz.stratalab.crypto
 
 package object signing {
   trait SigningKey

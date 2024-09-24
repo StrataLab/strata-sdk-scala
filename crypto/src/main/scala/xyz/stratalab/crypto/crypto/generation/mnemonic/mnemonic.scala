@@ -1,4 +1,4 @@
-package co.topl.crypto.generation
+package xyz.stratalab.crypto.generation
 
 import scala.math.BigInt
 

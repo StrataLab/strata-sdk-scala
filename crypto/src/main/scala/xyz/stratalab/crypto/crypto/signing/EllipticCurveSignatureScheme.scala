@@ -1,7 +1,7 @@
-package co.topl.crypto.signing
+package xyz.stratalab.crypto.signing
 
-import co.topl.crypto.generation.EntropyToSeed
-import co.topl.crypto.generation.mnemonic.Entropy
+import xyz.stratalab.crypto.generation.EntropyToSeed
+import xyz.stratalab.crypto.generation.mnemonic.Entropy
 
 /* Forked from https://github.com/input-output-hk/scrypto */
 

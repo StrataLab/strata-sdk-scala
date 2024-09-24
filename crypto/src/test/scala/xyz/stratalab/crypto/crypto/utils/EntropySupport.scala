@@ -1,7 +1,7 @@
-package co.topl.crypto.utils
+package xyz.stratalab.crypto.utils
 
 import cats.Eq
-import co.topl.crypto.generation.mnemonic.Entropy
+import xyz.stratalab.crypto.generation.mnemonic.Entropy
 import org.scalacheck.Arbitrary
 
 trait EntropySupport {

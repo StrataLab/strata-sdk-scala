@@ -1,4 +1,4 @@
-package co.topl.quivr.api
+package xyz.stratalab.quivr.api
 
 import cats.Applicative
 import cats.implicits._

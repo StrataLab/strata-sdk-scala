@@ -1,6 +1,6 @@
-package co.topl.crypto.utils
+package xyz.stratalab.crypto.utils
 
-import co.topl.crypto.generation.mnemonic.{MnemonicSize, MnemonicSizes}
+import xyz.stratalab.crypto.generation.mnemonic.{MnemonicSize, MnemonicSizes}
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {

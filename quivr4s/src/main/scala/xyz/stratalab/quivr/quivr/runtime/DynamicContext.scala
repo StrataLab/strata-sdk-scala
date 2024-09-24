@@ -1,10 +1,10 @@
-package co.topl.quivr.runtime
+package xyz.stratalab.quivr.runtime
 
 import cats.Monad
 import cats.data.EitherT
-import co.topl.common.ParsableDataInterface
-import co.topl.quivr.algebras.{DigestVerifier, SignatureVerifier}
-import co.topl.quivr.runtime.QuivrRuntimeErrors.{ContextError, ValidationError}
+import xyz.stratalab.common.ParsableDataInterface
+import xyz.stratalab.quivr.algebras.{DigestVerifier, SignatureVerifier}
+import xyz.stratalab.quivr.runtime.QuivrRuntimeErrors.{ContextError, ValidationError}
 import quivr.models._
 
 /**

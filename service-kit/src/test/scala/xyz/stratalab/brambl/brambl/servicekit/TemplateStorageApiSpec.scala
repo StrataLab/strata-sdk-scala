@@ -1,11 +1,11 @@
-package co.topl.brambl.servicekit
+package xyz.stratalab.sdk.servicekit
 
 import cats.effect.IO
-import co.topl.brambl.builders.locks.{LockTemplate, PropositionTemplate}
-import co.topl.brambl.codecs.LockTemplateCodecs.encodeLockTemplate
-import co.topl.brambl.dataApi.{TemplateStorageAlgebra, WalletTemplate}
+import xyz.stratalab.sdk.builders.locks.{LockTemplate, PropositionTemplate}
+import xyz.stratalab.sdk.codecs.LockTemplateCodecs.encodeLockTemplate
+import xyz.stratalab.sdk.dataApi.{TemplateStorageAlgebra, WalletTemplate}
 import munit.CatsEffectSuite
-import co.topl.brambl.constants.NetworkConstants
+import xyz.stratalab.sdk.constants.NetworkConstants
 
 class TemplateStorageApiSpec extends CatsEffectSuite with BaseSpec {
 

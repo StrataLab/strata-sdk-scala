@@ -1,7 +1,7 @@
-package co.topl.quivr
+package xyz.stratalab.quivr
 
 import cats.{Id, Monad}
-import co.topl.quivr.runtime.QuivrRuntimeErrors
+import xyz.stratalab.quivr.runtime.QuivrRuntimeErrors
 import com.google.protobuf.ByteString
 import quivr.models.VerificationKey._
 import quivr.models._
@@ -11,9 +11,9 @@ import quivr.models._
  */
 class QuivrCompositeOpsTests extends munit.FunSuite with MockHelpers {
 
-  import co.topl.quivr.api.Proposer._
-  import co.topl.quivr.api.Prover._
-  import co.topl.quivr.api.Verifier.instances._
+  import xyz.stratalab.quivr.api.Proposer._
+  import xyz.stratalab.quivr.api.Prover._
+  import xyz.stratalab.quivr.api.Verifier.instances._
 
   implicit val applicativeId: Monad[Id] = cats.catsInstancesForId
 

@@ -1,4 +1,4 @@
-package co.topl.crypto
+package xyz.stratalab.crypto
 
 //noinspection ScalaWeakerAccess
 package object catsinstances {

@@ -1,7 +1,7 @@
-package co.topl.quivr.algebras
+package xyz.stratalab.quivr.algebras
 
-import co.topl.common.ContextlessValidation
-import co.topl.quivr.runtime.QuivrRuntimeError
+import xyz.stratalab.common.ContextlessValidation
+import xyz.stratalab.quivr.runtime.QuivrRuntimeError
 import quivr.models.DigestVerification
 
 /** A trait that provides Digest verification for use in a Dynamic Context */

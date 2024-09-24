@@ -1,4 +1,4 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Applicative
 import io.circe.{Decoder, DecodingFailure, Encoder, HCursor, Json}

@@ -1,6 +1,6 @@
-package co.topl.crypto.hash.digest
+package xyz.stratalab.crypto.hash.digest
 
-import co.topl.crypto.utils.Generators._
+import xyz.stratalab.crypto.utils.Generators._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks

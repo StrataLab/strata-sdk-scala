@@ -1,7 +1,7 @@
-package co.topl.crypto.generation.mnemonic
+package xyz.stratalab.crypto.generation.mnemonic
 
 import cats.implicits._
-import co.topl.crypto.hash.sha256
+import xyz.stratalab.crypto.hash.sha256
 import io.estatico.newtype.macros.newtype
 import io.estatico.newtype.ops._
 

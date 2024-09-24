@@ -1,4 +1,4 @@
-package co.topl.crypto.hash
+package xyz.stratalab.crypto.hash
 
 import cats.data.{Validated, ValidatedNec}
 import io.estatico.newtype.macros.newtype

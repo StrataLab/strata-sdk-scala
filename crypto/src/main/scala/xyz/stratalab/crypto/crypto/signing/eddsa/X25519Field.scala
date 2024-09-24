@@ -1,4 +1,4 @@
-package co.topl.crypto.signing.eddsa
+package xyz.stratalab.crypto.signing.eddsa
 
 /**
  * AMS 2021:

@@ -1,20 +1,20 @@
-package co.topl.brambl.servicekit
+package xyz.stratalab.sdk.servicekit
 
 import munit.CatsEffectSuite
 import cats.effect.IO
 import cats.effect.kernel.Resource
-import co.topl.brambl.dataApi.WalletKeyApiAlgebra
-import co.topl.brambl.wallet.WalletApi
+import xyz.stratalab.sdk.dataApi.WalletKeyApiAlgebra
+import xyz.stratalab.sdk.wallet.WalletApi
 
 import scala.concurrent.duration.Duration
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
-import co.topl.brambl.builders.TransactionBuilderApi
-import co.topl.brambl.constants.NetworkConstants._
-import co.topl.brambl.dataApi.WalletStateAlgebra
+import xyz.stratalab.sdk.builders.TransactionBuilderApi
+import xyz.stratalab.sdk.constants.NetworkConstants._
+import xyz.stratalab.sdk.dataApi.WalletStateAlgebra
 import co.topl.brambl.syntax.cryptoToPbKeyPair
-import co.topl.crypto.generation.KeyInitializer.Instances.extendedEd25519Initializer
-import co.topl.crypto.signing.{ExtendedEd25519, KeyPair}
+import xyz.stratalab.crypto.generation.KeyInitializer.Instances.extendedEd25519Initializer
+import xyz.stratalab.crypto.signing.{ExtendedEd25519, KeyPair}
 import quivr.models
 
 import java.sql.Connection

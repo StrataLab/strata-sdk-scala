@@ -1,4 +1,4 @@
-package co.topl.quivr
+package xyz.stratalab.quivr
 
 import org.bouncycastle.crypto.digests.Blake2bDigest
 

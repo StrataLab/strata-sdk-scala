@@ -1,6 +1,6 @@
-package co.topl.crypto.generation
+package xyz.stratalab.crypto.generation
 
-import co.topl.crypto.generation.Bip32Indexes.{HardenedIndex, SoftIndex}
+import xyz.stratalab.crypto.generation.Bip32Indexes.{HardenedIndex, SoftIndex}
 
 import java.nio.{ByteBuffer, ByteOrder}
 

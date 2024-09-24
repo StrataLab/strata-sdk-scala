@@ -1,8 +1,8 @@
-package co.topl.crypto.encryption
+package xyz.stratalab.crypto.encryption
 
 import cats.Applicative
 import cats.implicits.catsSyntaxApplicativeId
-import co.topl.crypto.hash
+import xyz.stratalab.crypto.hash
 
 /**
  * Message authentication codes (MACs) are used to verify the integrity of data.

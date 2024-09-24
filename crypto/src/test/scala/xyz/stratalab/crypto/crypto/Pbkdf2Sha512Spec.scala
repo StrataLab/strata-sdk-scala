@@ -1,8 +1,8 @@
-package co.topl.crypto
+package xyz.stratalab.crypto
 
-import co.topl.crypto.generation.Pbkdf2Sha512
+import xyz.stratalab.crypto.generation.Pbkdf2Sha512
 import org.scalatest.propspec.AnyPropSpec
-import co.topl.crypto.utils.Hex
+import xyz.stratalab.crypto.utils.Hex
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
 class Pbkdf2Sha512Spec extends AnyPropSpec {

@@ -1,7 +1,7 @@
-package co.topl.crypto.generation.mnemonic
+package xyz.stratalab.crypto.generation.mnemonic
 
 import cats.implicits._
-import co.topl.crypto.utils.{Generators, Hex, TestVector}
+import xyz.stratalab.crypto.utils.{Generators, Hex, TestVector}
 import io.circe.{Decoder, DecodingFailure, HCursor}
 import io.circe.generic.semiauto.deriveDecoder
 import org.scalacheck.Gen

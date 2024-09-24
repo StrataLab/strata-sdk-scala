@@ -1,11 +1,11 @@
-package co.topl.crypto.accumulators.merkle
+package xyz.stratalab.crypto.accumulators.merkle
 
 import cats.implicits._
-import co.topl.crypto.accumulators.{LeafData, Side}
-import co.topl.crypto.catsinstances.implicits._
-import co.topl.crypto.hash.Hash
-import co.topl.crypto.hash.digest.Digest
-import co.topl.crypto.hash.digest.implicits._
+import xyz.stratalab.crypto.accumulators.{LeafData, Side}
+import xyz.stratalab.crypto.catsinstances.implicits._
+import xyz.stratalab.crypto.hash.Hash
+import xyz.stratalab.crypto.hash.digest.Digest
+import xyz.stratalab.crypto.hash.digest.implicits._
 
 /* Forked from https://github.com/input-output-hk/scrypto */
 

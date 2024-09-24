@@ -1,11 +1,11 @@
-package co.topl.quivr.api
+package xyz.stratalab.quivr.api
 
 import cats.Applicative
 import cats.implicits._
-import co.topl.quivr.Tokens
+import xyz.stratalab.quivr.Tokens
 import com.google.protobuf.ByteString
 import quivr.models._
-import co.topl.crypto.hash.Blake2b256
+import xyz.stratalab.crypto.hash.Blake2b256
 
 import java.nio.charset.StandardCharsets
 

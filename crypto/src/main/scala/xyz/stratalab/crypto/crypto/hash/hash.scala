@@ -1,6 +1,6 @@
-package co.topl.crypto
+package xyz.stratalab.crypto
 
-import co.topl.crypto.hash.digest._
+import xyz.stratalab.crypto.hash.digest._
 
 /* Forked from https://github.com/input-output-hk/scrypto */
 

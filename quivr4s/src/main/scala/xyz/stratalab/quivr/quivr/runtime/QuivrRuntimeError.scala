@@ -1,4 +1,4 @@
-package co.topl.quivr.runtime
+package xyz.stratalab.quivr.runtime
 
 import quivr.models.Proof
 import quivr.models.Proposition

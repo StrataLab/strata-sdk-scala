@@ -1,4 +1,4 @@
-package co.topl.common
+package xyz.stratalab.common
 
 trait ContextlessValidation[F[_], E, T] {
 

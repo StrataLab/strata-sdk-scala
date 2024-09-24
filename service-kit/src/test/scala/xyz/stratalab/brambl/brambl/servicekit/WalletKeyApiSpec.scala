@@ -1,4 +1,4 @@
-package co.topl.brambl.servicekit
+package xyz.stratalab.sdk.servicekit
 
 import munit.CatsEffectSuite
 
