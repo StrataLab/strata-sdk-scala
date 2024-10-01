@@ -1,0 +1,85 @@
+package xyz.stratalab.strata.servicekit
+
+import cats.Monad
+import cats.arrow.FunctionK
+import cats.effect.Async
+import cats.implicits.{catsSyntaxApplicativeId, toFlatMapOps, toFunctorOps}
+import co.topl.brambl.models.TransactionId
+import xyz.stratalab.sdk.builders.TransactionBuilderApi
+import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
+import xyz.stratalab.sdk.dataApi._
+import xyz.stratalab.sdk.servicekit._
+import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
+
+class EasyApi[F[
+  _
+]: Monad: WalletKeyApiAlgebra: WalletStateAlgebra: TemplateStorageAlgebra: FellowshipStorageAlgebra: TransactionBuilderApi: WalletApi: BifrostQueryAlgebra: GenusQueryAlgebra: Credentialler] {
+  private val walletKeyApiAlgebra = implicitly[WalletKeyApiAlgebra[F]]
+  private val walletStateAlgebra = implicitly[WalletStateAlgebra[F]]
+  private val templateStorageAlgebra = implicitly[TemplateStorageAlgebra[F]]
+  private val fellowshipStorageAlgebra = implicitly[FellowshipStorageAlgebra[F]]
+  private val transactionBuilderApi = implicitly[TransactionBuilderApi[F]]
+  private val walletApi = implicitly[WalletApi[F]]
+  private val bifrostQueryAlgebra = implicitly[BifrostQueryAlgebra[F]]
+  private val genusQueryAlgebra = implicitly[GenusQueryAlgebra[F]]
+  private val credentialler = implicitly[Credentialler[F]]
+
+  // EXAMPLE easy api function
+  def transferFunds(): F[TransactionId] =
+    // Uses the implicit instances to perform some action
+    for {
+      unproven <- transactionBuilderApi.buildTransferAllTransaction(???, ???, ???, ???, ???, ???)
+        .map(_.toOption.getOrElse(throw new RuntimeException("Unable to build transaction")))
+      proven   <- credentialler.prove(unproven)
+      res      <- bifrostQueryAlgebra.broadcastTransaction(proven)
+    } yield res
+}
+
+object EasyApi {
+
+  case class InitArgs(
+                       networkId: Int = MAIN_NETWORK_ID,
+                       ledgerId: Int = MAIN_LEDGER_ID,
+                       host: String = "localhost",
+                       port: Int = 9084,
+                       secure: Boolean = false,
+                       dbFile: String = "wallet.db",
+                       keyFile: String = "keyFile.json",
+                       mnemonicFile: String = "mnemonic.txt",
+                       passphrase: Option[String] = None
+                     )
+
+  def initialize[F[_]: Async](
+    password: Array[Byte],
+    args: InitArgs = InitArgs()
+  ): F[EasyApi[F]] = {
+    implicit val wka: WalletKeyApiAlgebra[F] = WalletKeyApi.make[F]()
+    implicit val wa: WalletApi[F] = WalletApi.make[F](wka)
+    val walletConn = WalletStateResource.walletResource(args.dbFile)
+    implicit val tsa: TemplateStorageAlgebra[F] = TemplateStorageApi.make[F](walletConn)
+    implicit val fsa: FellowshipStorageAlgebra[F] = FellowshipStorageApi.make[F](walletConn)
+    val channelResource = RpcChannelResource.channelResource[F](args.host, args.port, args.secure)
+    implicit val gq: GenusQueryAlgebra[F] = GenusQueryAlgebra.make[F](channelResource)
+    implicit val bq: BifrostQueryAlgebra[F] = BifrostQueryAlgebra.make[F](channelResource)
+    implicit val tba: TransactionBuilderApi[F] =
+      TransactionBuilderApi.make[F](args.networkId, args.ledgerId)
+
+    implicit val wsa: WalletStateAlgebra[F] = WalletStateApi.make[F](walletConn, wa)
+
+    implicit val fTof: FunctionK[F, F] = FunctionK.id[F]
+    for {
+      wallet <- wa.loadWallet(args.keyFile)
+      vs <- wallet match {
+        case Left(_) => wa
+          .createAndSaveNewWallet[F](password, args.passphrase, name = args.keyFile, mnemonicName = args.mnemonicFile)
+          .map(_.map(_.mainKeyVaultStore).toOption.getOrElse(throw new RuntimeException("Unable to create wallet")))
+        case Right(vs) => vs.pure[F]
+      }
+      mainKey <- wa.extractMainKey(vs, password)
+        .map(_.toOption.getOrElse(throw new RuntimeException("Unable to extract main key")))
+    } yield {
+      implicit val c: Credentialler[F] = CredentiallerInterpreter.make[F](wa, wsa, mainKey)
+      new EasyApi[F]
+    }
+  }
+}
