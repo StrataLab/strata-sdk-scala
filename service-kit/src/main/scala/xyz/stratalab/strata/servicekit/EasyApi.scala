@@ -11,47 +11,54 @@ import xyz.stratalab.sdk.dataApi._
 import xyz.stratalab.sdk.servicekit._
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
 
+import java.nio.charset.StandardCharsets
+
 class EasyApi[F[
   _
 ]: Monad: WalletKeyApiAlgebra: WalletStateAlgebra: TemplateStorageAlgebra: FellowshipStorageAlgebra: TransactionBuilderApi: WalletApi: BifrostQueryAlgebra: GenusQueryAlgebra: Credentialler] {
-  private val walletKeyApiAlgebra = implicitly[WalletKeyApiAlgebra[F]]
-  private val walletStateAlgebra = implicitly[WalletStateAlgebra[F]]
-  private val templateStorageAlgebra = implicitly[TemplateStorageAlgebra[F]]
-  private val fellowshipStorageAlgebra = implicitly[FellowshipStorageAlgebra[F]]
-  private val transactionBuilderApi = implicitly[TransactionBuilderApi[F]]
-  private val walletApi = implicitly[WalletApi[F]]
-  private val bifrostQueryAlgebra = implicitly[BifrostQueryAlgebra[F]]
-  private val genusQueryAlgebra = implicitly[GenusQueryAlgebra[F]]
-  private val credentialler = implicitly[Credentialler[F]]
+  val walletKeyApiAlgebra: WalletKeyApiAlgebra[F] = implicitly[WalletKeyApiAlgebra[F]]
+  val walletStateAlgebra: WalletStateAlgebra[F] = implicitly[WalletStateAlgebra[F]]
+  val templateStorageAlgebra: TemplateStorageAlgebra[F] = implicitly[TemplateStorageAlgebra[F]]
+  val fellowshipStorageAlgebra: FellowshipStorageAlgebra[F] = implicitly[FellowshipStorageAlgebra[F]]
+  val transactionBuilderApi: TransactionBuilderApi[F] = implicitly[TransactionBuilderApi[F]]
+  val walletApi: WalletApi[F] = implicitly[WalletApi[F]]
+  val bifrostQueryAlgebra: BifrostQueryAlgebra[F] = implicitly[BifrostQueryAlgebra[F]]
+  val genusQueryAlgebra: GenusQueryAlgebra[F] = implicitly[GenusQueryAlgebra[F]]
+  val credentialler: Credentialler[F] = implicitly[Credentialler[F]]
 
-  // EXAMPLE easy api function
+  // TODO: To be completed in TSDK-888
   def transferFunds(): F[TransactionId] =
-    // Uses the implicit instances to perform some action
     for {
-      unproven <- transactionBuilderApi.buildTransferAllTransaction(???, ???, ???, ???, ???, ???)
+      unproven <- transactionBuilderApi
+        .buildTransferAllTransaction(???, ???, ???, ???, ???, ???)
         .map(_.toOption.getOrElse(throw new RuntimeException("Unable to build transaction")))
-      proven   <- credentialler.prove(unproven)
-      res      <- bifrostQueryAlgebra.broadcastTransaction(proven)
+      proven <- credentialler.prove(unproven)
+      res    <- bifrostQueryAlgebra.broadcastTransaction(proven)
     } yield res
 }
 
 object EasyApi {
 
   case class InitArgs(
-                       networkId: Int = MAIN_NETWORK_ID,
-                       ledgerId: Int = MAIN_LEDGER_ID,
-                       host: String = "localhost",
-                       port: Int = 9084,
-                       secure: Boolean = false,
-                       dbFile: String = "wallet.db",
-                       keyFile: String = "keyFile.json",
-                       mnemonicFile: String = "mnemonic.txt",
-                       passphrase: Option[String] = None
-                     )
+    networkId:    Int = MAIN_NETWORK_ID,
+    ledgerId:     Int = MAIN_LEDGER_ID,
+    host:         String = "localhost",
+    port:         Int = 9084,
+    secure:       Boolean = false,
+    dbFile:       String = "wallet.db",
+    keyFile:      String = "keyFile.json",
+    mnemonicFile: String = "mnemonic.txt",
+    passphrase:   Option[String] = None
+  )
+
+  def initialize[F[_]: Async](
+    password: String,
+    args:     InitArgs = InitArgs()
+  ): F[EasyApi[F]] = initialize(password.getBytes(StandardCharsets.UTF_8), args)
 
   def initialize[F[_]: Async](
     password: Array[Byte],
-    args: InitArgs = InitArgs()
+    args:     InitArgs
   ): F[EasyApi[F]] = {
     implicit val wka: WalletKeyApiAlgebra[F] = WalletKeyApi.make[F]()
     implicit val wa: WalletApi[F] = WalletApi.make[F](wka)
@@ -70,12 +77,25 @@ object EasyApi {
     for {
       wallet <- wa.loadWallet(args.keyFile)
       vs <- wallet match {
-        case Left(_) => wa
-          .createAndSaveNewWallet[F](password, args.passphrase, name = args.keyFile, mnemonicName = args.mnemonicFile)
-          .map(_.map(_.mainKeyVaultStore).toOption.getOrElse(throw new RuntimeException("Unable to create wallet")))
+        case Left(_) =>
+          for {
+            vault <- wa
+              .createAndSaveNewWallet[F](
+                password,
+                args.passphrase,
+                name = args.keyFile,
+                mnemonicName = args.mnemonicFile
+              )
+              .map(_.map(_.mainKeyVaultStore).toOption.getOrElse(throw new RuntimeException("Unable to create wallet")))
+            mainKey <- wa
+              .extractMainKey(vault, password)
+              .map(_.toOption.getOrElse(throw new RuntimeException("Unable to extract main key")))
+            _ <- wsa.initWalletState(args.networkId, args.ledgerId, mainKey)
+          } yield vault
         case Right(vs) => vs.pure[F]
       }
-      mainKey <- wa.extractMainKey(vs, password)
+      mainKey <- wa
+        .extractMainKey(vs, password)
         .map(_.toOption.getOrElse(throw new RuntimeException("Unable to extract main key")))
     } yield {
       implicit val c: Credentialler[F] = CredentiallerInterpreter.make[F](wa, wsa, mainKey)
