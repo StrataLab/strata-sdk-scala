@@ -13,7 +13,6 @@ import xyz.stratalab.sdk.servicekit._
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
 
 import java.nio.charset.StandardCharsets
-import scala.util.control.Exception._
 
 class EasyApi[F[
   _

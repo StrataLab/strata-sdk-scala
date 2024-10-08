@@ -41,7 +41,12 @@ package xyz.stratalab.strata.servicekit
 import cats.effect.IO
 
 class Demo {
-  val api = EasyApi.initialize[IO]("your-wallet-password")
+  val initialization = for {
+    api <- EasyApi.initialize[IO]("your-wallet-password")
+    /*
+    * You can now the the api object to interact with the SDK here
+    */
+  } yield api
 }
 ```
 
