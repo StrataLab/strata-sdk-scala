@@ -1,22 +1,29 @@
 package xyz.stratalab.strata.servicekit
 
-import cats.Monad
 import cats.arrow.FunctionK
 import cats.data.EitherT
 import cats.effect.Async
 import cats.implicits.{catsSyntaxApplicativeError, catsSyntaxEitherId, toBifunctorOps, toFlatMapOps, toFunctorOps}
-import co.topl.brambl.models.TransactionId
+import co.topl.brambl.models.transaction.IoTransaction
+import co.topl.brambl.models.{Datum, Event, LockAddress, TransactionId}
+import quivr.models.VerificationKey
+import xyz.stratalab.sdk.Context
 import xyz.stratalab.sdk.builders.TransactionBuilderApi
+import xyz.stratalab.sdk.builders.TransactionBuilderApi.implicits.lockAddressOps
 import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
 import xyz.stratalab.sdk.dataApi._
 import xyz.stratalab.sdk.servicekit._
+import xyz.stratalab.sdk.syntax.ValueTypeIdentifier
+import xyz.stratalab.sdk.utils.Encoding
+import xyz.stratalab.sdk.wallet.CredentiallerInterpreter.InvalidTransaction
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
+import xyz.stratalab.strata.servicekit.EasyApi.{DefaultAccount, UnableToTransferFunds, WalletAccount}
 
 import java.nio.charset.StandardCharsets
 
 class EasyApi[F[
   _
-]: Monad: WalletKeyApiAlgebra: WalletStateAlgebra: TemplateStorageAlgebra: FellowshipStorageAlgebra: TransactionBuilderApi: WalletApi: BifrostQueryAlgebra: GenusQueryAlgebra: Credentialler] {
+]: Async: WalletKeyApiAlgebra: WalletStateAlgebra: TemplateStorageAlgebra: FellowshipStorageAlgebra: TransactionBuilderApi: WalletApi: BifrostQueryAlgebra: GenusQueryAlgebra: Credentialler] {
   val walletKeyApiAlgebra: WalletKeyApiAlgebra[F] = implicitly[WalletKeyApiAlgebra[F]]
   val walletStateAlgebra: WalletStateAlgebra[F] = implicitly[WalletStateAlgebra[F]]
   val templateStorageAlgebra: TemplateStorageAlgebra[F] = implicitly[TemplateStorageAlgebra[F]]
@@ -27,21 +34,55 @@ class EasyApi[F[
   val genusQueryAlgebra: GenusQueryAlgebra[F] = implicitly[GenusQueryAlgebra[F]]
   val credentialler: Credentialler[F] = implicitly[Credentialler[F]]
 
-  // TODO: To be completed in TSDK-888
-  def transferFunds(): F[TransactionId] =
-    for {
-      unproven <- transactionBuilderApi
-        .buildTransferAllTransaction(???, ???, ???, ???, ???, ???)
-        .map(_.toOption.getOrElse(throw new RuntimeException("Unable to build transaction")))
-      proven <- credentialler.prove(unproven)
-      res    <- bifrostQueryAlgebra.broadcastTransaction(proven)
-    } yield res
+  def transferFunds(from: WalletAccount, recipient: LockAddress, amount: Long, valueType: ValueTypeIdentifier, fee: Long): F[TransactionId] = {
+    (for {
+      curIdx <- EitherT(walletStateAlgebra.getCurrentIndicesForFunds(from.fellowship, from.template, None).map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair"))))
+      inputLock <- EitherT(walletStateAlgebra.getLock(from.fellowship, from.template, curIdx.z).map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair"))))
+      inputAddr <- EitherT(transactionBuilderApi.lockAddress(inputLock).map(_.asRight[RuntimeException]))
+      txos <- EitherT(genusQueryAlgebra.queryUtxo(inputAddr).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to query UTXO", e).asLeft))
+      changeLock <- EitherT(walletStateAlgebra.getLock(from.fellowship, from.template, curIdx.z + 1).map(_.toRight(new RuntimeException("Unable to get change lock for next (fellowship, template) pair"))))
+      changeAddr <- EitherT(transactionBuilderApi.lockAddress(changeLock).map(_.asRight[RuntimeException]))
+      unproven <- EitherT(transactionBuilderApi
+        .buildTransferAmountTransaction(valueType, txos, inputLock.getPredicate, amount, recipient, changeAddr, fee)
+        .map(_.leftMap(err => new RuntimeException("Unable to build transaction", err))))
+      context <- EitherT(buildContext(unproven).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to build context", e).asLeft))
+      proven <- EitherT(credentialler.proveAndValidate(unproven, context).map(_.leftMap(errs => new RuntimeException("Transaction failed validation", InvalidTransaction(errs)))))
+      txId    <- EitherT(bifrostQueryAlgebra.broadcastTransaction(proven).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Broadcast transaction failed", e).asLeft))
+      hasChange = proven.outputs.map(_.address).contains(changeAddr) // check if change address is in outputs
+      res <- if(hasChange) for {
+        // The vk in the cartesian wallet state will always refer to the derivation of the user's main key (which can partially be obtained via the Default account)
+        parentVk <- EitherT(walletStateAlgebra.getEntityVks(DefaultAccount.fellowship, DefaultAccount.template).map(_.flatMap(_.headOption.flatMap(vk => Encoding.decodeFromBase58(vk).toOption)).toRight(new RuntimeException("Unable to get (self,default) VK")).map(VerificationKey.parseFrom)))
+        childVk <- EitherT(walletApi.deriveChildVerificationKey(parentVk, curIdx.z + 1).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to derive child verification key", e).asLeft))
+        res <- EitherT(walletStateAlgebra.updateWalletState(Encoding.encodeToBase58(changeLock.getPredicate.toByteArray), changeAddr.toBase58(), Some("ExtendedEd25519"), Some(Encoding.encodeToBase58(childVk.toByteArray)), curIdx.copy(z = curIdx.z+1)).map(_ => txId.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to update wallet state", e).asLeft))
+      } yield res else EitherT.pure[F, RuntimeException](txId)
+    } yield res).value map {
+      case Left(err) => throw UnableToTransferFunds(err)
+      case Right(txId) => txId
+    }
+  }
+
+  def buildContext(tx: IoTransaction): F[Context[F]] = for {
+    tipBlockHeader <- bifrostQueryAlgebra
+      .blockByDepth(1L)
+      .map(_.get._2)
+  } yield Context[F](
+    tx,
+    tipBlockHeader.slot,
+    Map(
+      "header" -> Datum().withHeader(
+        Datum.Header(Event.Header(tipBlockHeader.height))
+      )
+    ).lift
+  )
 }
 
 object EasyApi {
 
   case class UnableToInitializeSdk(err: Throwable = null)
       extends RuntimeException(s"Unable to initialize SDK: ${err.getMessage}", err)
+
+  case class UnableToTransferFunds(err: Throwable = null)
+      extends RuntimeException(s"Issue transferring funds: ${err.getMessage}", err)
 
   case class InitArgs(
     networkId:    Int = MAIN_NETWORK_ID,
@@ -54,6 +95,13 @@ object EasyApi {
     mnemonicFile: String = "mnemonic.txt", // only needed for wallet creation
     passphrase:   Option[String] = None // only needed for wallet creation
   )
+
+  case class WalletAccount(fellowship: String, template: String)
+
+  // Common (fellowship, template) pairs
+  val DefaultAccount: WalletAccount = WalletAccount("self", "default")
+  val GenesisAccount: WalletAccount = WalletAccount("nofellowship", "genesis")
+
 
   def initialize[F[_]: Async](
     password: String,
