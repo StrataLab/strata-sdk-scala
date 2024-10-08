@@ -2,8 +2,9 @@ package xyz.stratalab.strata.servicekit
 
 import cats.Monad
 import cats.arrow.FunctionK
+import cats.data.EitherT
 import cats.effect.Async
-import cats.implicits.{catsSyntaxApplicativeId, toFlatMapOps, toFunctorOps}
+import cats.implicits.{catsSyntaxEitherId, toBifunctorOps, toFlatMapOps, toFunctorOps}
 import co.topl.brambl.models.TransactionId
 import xyz.stratalab.sdk.builders.TransactionBuilderApi
 import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
@@ -12,6 +13,7 @@ import xyz.stratalab.sdk.servicekit._
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
 
 import java.nio.charset.StandardCharsets
+import scala.util.Try
 
 class EasyApi[F[
   _
@@ -38,6 +40,8 @@ class EasyApi[F[
 }
 
 object EasyApi {
+
+  case class UnableToInitializeSdk(err: Throwable = null) extends RuntimeException("Unable to initialize SDK", err)
 
   case class InitArgs(
     networkId:    Int = MAIN_NETWORK_ID,
@@ -76,30 +80,42 @@ object EasyApi {
     implicit val fTof: FunctionK[F, F] = FunctionK.id[F]
     for {
       wallet <- wa.loadWallet(args.keyFile)
-      vs <- wallet match {
+      keyPairRes <- wallet match {
         case Left(_) =>
-          for {
-            vault <- wa
-              .createAndSaveNewWallet[F](
-                password,
-                args.passphrase,
-                name = args.keyFile,
-                mnemonicName = args.mnemonicFile
-              )
-              .map(_.map(_.mainKeyVaultStore).toOption.getOrElse(throw new RuntimeException("Unable to create wallet")))
-            mainKey <- wa
-              .extractMainKey(vault, password)
-              .map(_.toOption.getOrElse(throw new RuntimeException("Unable to extract main key")))
-            _ <- wsa.initWalletState(args.networkId, args.ledgerId, mainKey)
-          } yield vault
-        case Right(vs) => vs.pure[F]
+          (for {
+            vault <- EitherT(
+              wa
+                .createAndSaveNewWallet[F](
+                  password,
+                  args.passphrase,
+                  name = args.keyFile,
+                  mnemonicName = args.mnemonicFile
+                )
+                .map(_.leftMap(new RuntimeException("Unable to create wallet", _)).map(_.mainKeyVaultStore))
+            )
+            mainKey <- EitherT(
+              wa
+                .extractMainKey(vault, password)
+                .map(_.leftMap(new RuntimeException("Unable to extract main key", _)))
+            )
+            res <- EitherT(
+              wsa
+                .initWalletState(args.networkId, args.ledgerId, mainKey)
+                .map(Try(_) match {
+                  case scala.util.Failure(exception) =>
+                    (new RuntimeException("Unable to initialize wallet state", exception)).asLeft
+                  case _ => mainKey.asRight
+                })
+            )
+          } yield res).value
+        case Right(vs) =>
+          wa.extractMainKey(vs, password).map(_.leftMap(new RuntimeException("Unable to extract main key", _)))
       }
-      mainKey <- wa
-        .extractMainKey(vs, password)
-        .map(_.toOption.getOrElse(throw new RuntimeException("Unable to extract main key")))
-    } yield {
-      implicit val c: Credentialler[F] = CredentiallerInterpreter.make[F](wa, wsa, mainKey)
-      new EasyApi[F]
+    } yield keyPairRes match {
+      case Left(err) => throw UnableToInitializeSdk(err)
+      case Right(mainKey) =>
+        implicit val c: Credentialler[F] = CredentiallerInterpreter.make[F](wa, wsa, mainKey)
+        new EasyApi[F]
     }
   }
 }
