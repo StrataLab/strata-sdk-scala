@@ -34,32 +34,95 @@ class EasyApi[F[
   val genusQueryAlgebra: GenusQueryAlgebra[F] = implicitly[GenusQueryAlgebra[F]]
   val credentialler: Credentialler[F] = implicitly[Credentialler[F]]
 
-  def transferFunds(from: WalletAccount, recipient: LockAddress, amount: Long, valueType: ValueTypeIdentifier, fee: Long): F[TransactionId] = {
+  def transferFunds(
+    from:      WalletAccount,
+    recipient: LockAddress,
+    amount:    Long,
+    valueType: ValueTypeIdentifier,
+    fee:       Long
+  ): F[TransactionId] =
     (for {
-      curIdx <- EitherT(walletStateAlgebra.getCurrentIndicesForFunds(from.fellowship, from.template, None).map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair"))))
-      inputLock <- EitherT(walletStateAlgebra.getLock(from.fellowship, from.template, curIdx.z).map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair"))))
+      curIdx <- EitherT(
+        walletStateAlgebra
+          .getCurrentIndicesForFunds(from.fellowship, from.template, None)
+          .map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair")))
+      )
+      inputLock <- EitherT(
+        walletStateAlgebra
+          .getLock(from.fellowship, from.template, curIdx.z)
+          .map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair")))
+      )
       inputAddr <- EitherT(transactionBuilderApi.lockAddress(inputLock).map(_.asRight[RuntimeException]))
-      txos <- EitherT(genusQueryAlgebra.queryUtxo(inputAddr).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to query UTXO", e).asLeft))
-      changeLock <- EitherT(walletStateAlgebra.getLock(from.fellowship, from.template, curIdx.z + 1).map(_.toRight(new RuntimeException("Unable to get change lock for next (fellowship, template) pair"))))
+      txos <- EitherT(
+        genusQueryAlgebra
+          .queryUtxo(inputAddr)
+          .map(_.asRight[RuntimeException])
+          .handleError(e => new RuntimeException("Unable to query UTXO", e).asLeft)
+      )
+      changeLock <- EitherT(
+        walletStateAlgebra
+          .getLock(from.fellowship, from.template, curIdx.z + 1)
+          .map(_.toRight(new RuntimeException("Unable to get change lock for next (fellowship, template) pair")))
+      )
       changeAddr <- EitherT(transactionBuilderApi.lockAddress(changeLock).map(_.asRight[RuntimeException]))
-      unproven <- EitherT(transactionBuilderApi
-        .buildTransferAmountTransaction(valueType, txos, inputLock.getPredicate, amount, recipient, changeAddr, fee)
-        .map(_.leftMap(err => new RuntimeException("Unable to build transaction", err))))
-      context <- EitherT(buildContext(unproven).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to build context", e).asLeft))
-      proven <- EitherT(credentialler.proveAndValidate(unproven, context).map(_.leftMap(errs => new RuntimeException("Transaction failed validation", InvalidTransaction(errs)))))
-      txId    <- EitherT(bifrostQueryAlgebra.broadcastTransaction(proven).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Broadcast transaction failed", e).asLeft))
+      unproven <- EitherT(
+        transactionBuilderApi
+          .buildTransferAmountTransaction(valueType, txos, inputLock.getPredicate, amount, recipient, changeAddr, fee)
+          .map(_.leftMap(err => new RuntimeException("Unable to build transaction", err)))
+      )
+      context <- EitherT(
+        buildContext(unproven)
+          .map(_.asRight[RuntimeException])
+          .handleError(e => new RuntimeException("Unable to build context", e).asLeft)
+      )
+      proven <- EitherT(
+        credentialler
+          .proveAndValidate(unproven, context)
+          .map(_.leftMap(errs => new RuntimeException("Transaction failed validation", InvalidTransaction(errs))))
+      )
+      txId <- EitherT(
+        bifrostQueryAlgebra
+          .broadcastTransaction(proven)
+          .map(_.asRight[RuntimeException])
+          .handleError(e => new RuntimeException("Broadcast transaction failed", e).asLeft)
+      )
       hasChange = proven.outputs.map(_.address).contains(changeAddr) // check if change address is in outputs
-      res <- if(hasChange) for {
-        // The vk in the cartesian wallet state will always refer to the derivation of the user's main key (which can partially be obtained via the Default account)
-        parentVk <- EitherT(walletStateAlgebra.getEntityVks(DefaultAccount.fellowship, DefaultAccount.template).map(_.flatMap(_.headOption.flatMap(vk => Encoding.decodeFromBase58(vk).toOption)).toRight(new RuntimeException("Unable to get (self,default) VK")).map(VerificationKey.parseFrom)))
-        childVk <- EitherT(walletApi.deriveChildVerificationKey(parentVk, curIdx.z + 1).map(_.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to derive child verification key", e).asLeft))
-        res <- EitherT(walletStateAlgebra.updateWalletState(Encoding.encodeToBase58(changeLock.getPredicate.toByteArray), changeAddr.toBase58(), Some("ExtendedEd25519"), Some(Encoding.encodeToBase58(childVk.toByteArray)), curIdx.copy(z = curIdx.z+1)).map(_ => txId.asRight[RuntimeException]).handleError(e => new RuntimeException("Unable to update wallet state", e).asLeft))
-      } yield res else EitherT.pure[F, RuntimeException](txId)
+      res <-
+        if (hasChange) for {
+          // The vk in the cartesian wallet state will always refer to the derivation of the user's main key (which can partially be obtained via the Default account)
+          parentVk <- EitherT(
+            walletStateAlgebra
+              .getEntityVks(DefaultAccount.fellowship, DefaultAccount.template)
+              .map(
+                _.flatMap(_.headOption.flatMap(vk => Encoding.decodeFromBase58(vk).toOption))
+                  .toRight(new RuntimeException("Unable to get (self,default) VK"))
+                  .map(VerificationKey.parseFrom)
+              )
+          )
+          childVk <- EitherT(
+            walletApi
+              .deriveChildVerificationKey(parentVk, curIdx.z + 1)
+              .map(_.asRight[RuntimeException])
+              .handleError(e => new RuntimeException("Unable to derive child verification key", e).asLeft)
+          )
+          res <- EitherT(
+            walletStateAlgebra
+              .updateWalletState(
+                Encoding.encodeToBase58(changeLock.getPredicate.toByteArray),
+                changeAddr.toBase58(),
+                Some("ExtendedEd25519"),
+                Some(Encoding.encodeToBase58(childVk.toByteArray)),
+                curIdx.copy(z = curIdx.z + 1)
+              )
+              .map(_ => txId.asRight[RuntimeException])
+              .handleError(e => new RuntimeException("Unable to update wallet state", e).asLeft)
+          )
+        } yield res
+        else EitherT.pure[F, RuntimeException](txId)
     } yield res).value map {
-      case Left(err) => throw UnableToTransferFunds(err)
+      case Left(err)   => throw UnableToTransferFunds(err)
       case Right(txId) => txId
     }
-  }
 
   def buildContext(tx: IoTransaction): F[Context[F]] = for {
     tipBlockHeader <- bifrostQueryAlgebra
@@ -101,7 +164,6 @@ object EasyApi {
   // Common (fellowship, template) pairs
   val DefaultAccount: WalletAccount = WalletAccount("self", "default")
   val GenesisAccount: WalletAccount = WalletAccount("nofellowship", "genesis")
-
 
   def initialize[F[_]: Async](
     password: String,
