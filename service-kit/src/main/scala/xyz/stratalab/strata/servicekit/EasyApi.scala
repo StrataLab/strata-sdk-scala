@@ -17,7 +17,8 @@ import xyz.stratalab.sdk.syntax.ValueTypeIdentifier
 import xyz.stratalab.sdk.utils.Encoding
 import xyz.stratalab.sdk.wallet.CredentiallerInterpreter.InvalidTransaction
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
-import xyz.stratalab.strata.servicekit.EasyApi.{DefaultAccount, UnableToTransferFunds, WalletAccount}
+import xyz.stratalab.strata.servicekit.EasyApi.{DefaultAccount, UnableToGetBalance, UnableToTransferFunds, WalletAccount}
+import xyz.stratalab.sdk.syntax.{int128AsBigInt, valueToQuantitySyntaxOps, valueToTypeIdentifierSyntaxOps}
 
 import java.nio.charset.StandardCharsets
 
@@ -137,6 +138,22 @@ class EasyApi[F[
       )
     ).lift
   )
+  def getBalance(account: WalletAccount): F[Map[ValueTypeIdentifier, Long]] = {
+    (for {
+      curIdx <- EitherT(walletStateAlgebra.getCurrentIndicesForFunds(account.fellowship, account.template, None).map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair"))))
+      lock <- EitherT(walletStateAlgebra.getLock(account.fellowship, account.template, curIdx.z).map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair"))))
+      lockAddr <- EitherT(transactionBuilderApi.lockAddress(lock).map(_.asRight[RuntimeException]))
+      utxos <- EitherT(
+        genusQueryAlgebra
+          .queryUtxo(lockAddr)
+          .map(_.asRight[RuntimeException])
+          .handleError(e => new RuntimeException("Unable to query UTXO", e).asLeft)
+      )
+    } yield utxos.map(_.transactionOutput.value.value).groupBy(_.typeIdentifier).view.mapValues(_.map(_.quantity: BigInt).sum.toLong)).value map {
+      case Left(err) => throw UnableToGetBalance(err)
+      case Right(res) => res.toMap
+    }
+  }
 }
 
 object EasyApi {
@@ -146,6 +163,9 @@ object EasyApi {
 
   case class UnableToTransferFunds(err: Throwable = null)
       extends RuntimeException(s"Issue transferring funds: ${err.getMessage}", err)
+
+  case class UnableToGetBalance(err: Throwable = null)
+      extends RuntimeException(s"Unable to get balance: ${err.getMessage}", err)
 
   case class InitArgs(
     networkId:    Int = MAIN_NETWORK_ID,
