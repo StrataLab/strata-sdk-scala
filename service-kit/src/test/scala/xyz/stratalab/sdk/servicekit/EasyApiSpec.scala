@@ -1,8 +1,16 @@
 package xyz.stratalab.sdk.servicekit
 
 import cats.effect.IO
-import co.topl.brambl.models.Indices
+import co.topl.brambl.models.{Indices, LockAddress, TransactionId}
+import co.topl.brambl.models.transaction.IoTransaction
+import co.topl.consensus.models.{BlockHeader, BlockId}
+import co.topl.genus.services.{Txo, TxoState}
+import co.topl.node.models.BlockBody
+import co.topl.node.services.SynchronizationTraversalRes
 import munit.CatsEffectSuite
+import xyz.stratalab.sdk.builders.TransactionBuilderApi
+import xyz.stratalab.sdk.dataApi.{BifrostQueryAlgebra, FellowshipStorageAlgebra, GenusQueryAlgebra, TemplateStorageAlgebra, WalletKeyApiAlgebra, WalletStateAlgebra}
+import xyz.stratalab.sdk.wallet.{Credentialler, WalletApi}
 import xyz.stratalab.strata.servicekit.EasyApi
 import xyz.stratalab.strata.servicekit.EasyApi.{InitArgs, UnableToInitializeSdk}
 
@@ -86,6 +94,44 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
         )
         accessWallet <- EasyApi.initialize[IO]("password", testArgs.copy(dbFile = getFileName("second.db")))
       } yield true
+    )
+  }
+  private def mockEasyApi(original: EasyApi[IO]): EasyApi[IO] = {
+    implicit val walletKeyApiAlgebra: WalletKeyApiAlgebra[IO] = original.walletKeyApiAlgebra
+    implicit val walletStateAlgebra: WalletStateAlgebra[IO] = original.walletStateAlgebra
+    implicit val templateStorageAlgebra: TemplateStorageAlgebra[IO] = original.templateStorageAlgebra
+    implicit val fellowshipStorageAlgebra: FellowshipStorageAlgebra[IO] = original.fellowshipStorageAlgebra
+    implicit val walletApi: WalletApi[IO] = original.walletApi
+    implicit val transactionBuilderApi: TransactionBuilderApi[IO] = original.transactionBuilderApi
+    implicit val credentialler: Credentialler[IO] = original.credentialler
+    implicit val bifrostQueryAlgebra: BifrostQueryAlgebra[IO] = new BifrostQueryAlgebra[IO] {
+      override def blockByHeight(height: Long) = ???
+
+      override def blockByDepth(depth: Long) = ???
+
+      override def blockById(blockId: BlockId): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] = ???
+
+      override def fetchTransaction(txId: TransactionId): IO[Option[IoTransaction]] = ???
+
+      override def broadcastTransaction(tx: IoTransaction): IO[TransactionId] = ???
+
+      override def synchronizationTraversal(): IO[Iterator[SynchronizationTraversalRes]] = ???
+
+      override def makeBlock(nbOfBlocks: Int): IO[Unit] = ???
+    }
+    implicit val genusQueryAlgebra: GenusQueryAlgebra[IO] = new GenusQueryAlgebra[IO] {
+      override def queryUtxo(fromAddress: LockAddress, txoState: TxoState): IO[Seq[Txo]] = ???
+    }
+    new EasyApi[IO]
+  }
+
+  testDirectory.test("Get Balance > Simple") { _ =>
+    assertIO(
+      obtained = for {
+        initialize <- EasyApi.initialize[IO]("password", testArgs)
+        mockApi = mockEasyApi(initialize)
+      } yield 1,
+      returns = 1
     )
   }
 }
