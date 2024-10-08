@@ -4,7 +4,7 @@ import cats.Monad
 import cats.arrow.FunctionK
 import cats.data.EitherT
 import cats.effect.Async
-import cats.implicits.{catsSyntaxEitherId, toBifunctorOps, toFlatMapOps, toFunctorOps}
+import cats.implicits.{catsSyntaxApplicativeError, catsSyntaxEitherId, toBifunctorOps, toFlatMapOps, toFunctorOps}
 import co.topl.brambl.models.TransactionId
 import xyz.stratalab.sdk.builders.TransactionBuilderApi
 import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
@@ -13,7 +13,7 @@ import xyz.stratalab.sdk.servicekit._
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
 
 import java.nio.charset.StandardCharsets
-import scala.util.Try
+import scala.util.control.Exception._
 
 class EasyApi[F[
   _
@@ -41,7 +41,8 @@ class EasyApi[F[
 
 object EasyApi {
 
-  case class UnableToInitializeSdk(err: Throwable = null) extends RuntimeException("Unable to initialize SDK", err)
+  case class UnableToInitializeSdk(err: Throwable = null)
+      extends RuntimeException(s"Unable to initialize SDK: ${err.getMessage}", err)
 
   case class InitArgs(
     networkId:    Int = MAIN_NETWORK_ID,
@@ -51,8 +52,8 @@ object EasyApi {
     secure:       Boolean = false,
     dbFile:       String = "wallet.db",
     keyFile:      String = "keyFile.json",
-    mnemonicFile: String = "mnemonic.txt",
-    passphrase:   Option[String] = None
+    mnemonicFile: String = "mnemonic.txt", // only needed for wallet creation
+    passphrase:   Option[String] = None // only needed for wallet creation
   )
 
   def initialize[F[_]: Async](
@@ -101,15 +102,21 @@ object EasyApi {
             res <- EitherT(
               wsa
                 .initWalletState(args.networkId, args.ledgerId, mainKey)
-                .map(Try(_) match {
-                  case scala.util.Failure(exception) =>
-                    (new RuntimeException("Unable to initialize wallet state", exception)).asLeft
-                  case _ => mainKey.asRight
-                })
+                .map(_ => mainKey.asRight[RuntimeException])
+                .handleError(e => (new RuntimeException("Unable to initialize wallet state", e)).asLeft)
             )
           } yield res).value
         case Right(vs) =>
-          wa.extractMainKey(vs, password).map(_.leftMap(new RuntimeException("Unable to extract main key", _)))
+          (for {
+            mainKey <- EitherT(
+              wa.extractMainKey(vs, password).map(_.leftMap(new RuntimeException("Unable to extract main key", _)))
+            )
+            _ <- EitherT(
+              wsa
+                .validateWalletInitialization(args.networkId, args.ledgerId, mainKey)
+                .map(_.leftMap(m => new RuntimeException(s"Wallet state invalid: ${m.mkString("[", ",", "]")}")))
+            )
+          } yield mainKey).value
       }
     } yield keyPairRes match {
       case Left(err) => throw UnableToInitializeSdk(err)
