@@ -17,7 +17,7 @@ import xyz.stratalab.sdk.common.ContainsEvidence.Ops
 import xyz.stratalab.sdk.common.ContainsImmutable.instances.lockImmutable
 import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
 import xyz.stratalab.sdk.dataApi._
-import xyz.stratalab.sdk.syntax.{LvlType, bigIntAsInt128}
+import xyz.stratalab.sdk.syntax.{bigIntAsInt128, LvlType}
 import xyz.stratalab.sdk.wallet.{Credentialler, WalletApi}
 import xyz.stratalab.strata.servicekit.EasyApi
 import xyz.stratalab.strata.servicekit.EasyApi._
@@ -105,7 +105,23 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
     )
   }
 
-  private val HeightLockAddr = LockAddress(network = MAIN_NETWORK_ID, ledger = MAIN_LEDGER_ID, id = LockId(Lock().withPredicate(Lock.Predicate(List(Challenge().withRevealed(Proposer.heightProposer[Id].propose("header", 1, Long.MaxValue))), 1)).sizedEvidence.digest.value))
+  private val HeightLockAddr = LockAddress(
+    network = MAIN_NETWORK_ID,
+    ledger = MAIN_LEDGER_ID,
+    id = LockId(
+      Lock()
+        .withPredicate(
+          Lock.Predicate(
+            List(Challenge().withRevealed(Proposer.heightProposer[Id].propose("header", 1, Long.MaxValue))),
+            1
+          )
+        )
+        .sizedEvidence
+        .digest
+        .value
+    )
+  )
+
   private def mockEasyApi(original: EasyApi[IO]): EasyApi[IO] = {
     implicit val walletKeyApiAlgebra: WalletKeyApiAlgebra[IO] = original.walletKeyApiAlgebra
     implicit val walletStateAlgebra: WalletStateAlgebra[IO] = original.walletStateAlgebra
@@ -114,41 +130,66 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
     implicit val walletApi: WalletApi[IO] = original.walletApi
     implicit val transactionBuilderApi: TransactionBuilderApi[IO] = original.transactionBuilderApi
     implicit val credentialler: Credentialler[IO] = original.credentialler
-    implicit val genusQueryAlgebra: GenusQueryAlgebra[IO] = (fromAddress: LockAddress, txoState: TxoState) => IO.pure(Seq(
-      Txo(
-        transactionOutput = UnspentTransactionOutput(HeightLockAddr, Value.defaultInstance.withLvl(Value.LVL(BigInt(500)))),
-        outputAddress = TransactionOutputAddress(network = MAIN_NETWORK_ID, ledger = MAIN_LEDGER_ID, id = TransactionId(ByteString.copyFrom(Array.fill(32)(0.toByte))))
-      )
-    ))
-    implicit val bifrostQueryAlgebra: BifrostQueryAlgebra[IO] = new BifrostQueryAlgebra[IO] {
-      override def blockByDepth(depth: Long): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] = IO.pure(
-        Some(
-          (
-            BlockId(ByteString.copyFrom(Array.fill(32)(0.toByte))),
-            BlockHeader(parentHeaderId = BlockId(ByteString.copyFrom(Array.fill(32)(0.toByte))),
-              txRoot = ByteString.copyFrom(Array.fill(32)(0.toByte)), bloomFilter = ByteString.copyFrom(Array.fill(256)(0.toByte)),
-              height = 50,
-              slot = 100,
-              eligibilityCertificate = EligibilityCertificate(ByteString.copyFrom(Array.fill(80)(0.toByte)), ByteString.copyFrom(Array.fill(32)(0.toByte)), ByteString.copyFrom(Array.fill(32)(0.toByte)), ByteString.copyFrom(Array.fill(32)(0.toByte))),
-              operationalCertificate = OperationalCertificate(
-                VerificationKeyKesProduct(ByteString.copyFrom(Array.fill(32)(0.toByte))),
-                SignatureKesProduct(
-                  SignatureKesSum(ByteString.copyFrom(Array.fill(32)(0.toByte)), ByteString.copyFrom(Array.fill(64)(0.toByte))),
-                  SignatureKesSum(ByteString.copyFrom(Array.fill(32)(0.toByte)), ByteString.copyFrom(Array.fill(64)(0.toByte))),
-                  ByteString.copyFrom(Array.fill(32)(0.toByte))
-                ),
-                ByteString.copyFrom(Array.fill(32)(0.toByte)),
-                ByteString.copyFrom(Array.fill(64)(0.toByte))
-              ),
-              address = StakingAddress(ByteString.copyFrom(Array.fill(32)(0.toByte))),
-              version = ProtocolVersion.defaultInstance
-            ),
-            BlockBody(Seq.empty, None),
-            Seq.empty
+    implicit val genusQueryAlgebra: GenusQueryAlgebra[IO] = (fromAddress: LockAddress, txoState: TxoState) =>
+      IO.pure(
+        Seq(
+          Txo(
+            transactionOutput =
+              UnspentTransactionOutput(HeightLockAddr, Value.defaultInstance.withLvl(Value.LVL(BigInt(500)))),
+            outputAddress = TransactionOutputAddress(
+              network = MAIN_NETWORK_ID,
+              ledger = MAIN_LEDGER_ID,
+              id = TransactionId(ByteString.copyFrom(Array.fill(32)(0.toByte)))
+            )
           )
         )
       )
-      override def broadcastTransaction(tx: IoTransaction): IO[TransactionId] = IO.pure(TransactionId(ByteString.copyFrom(Array.fill(32)(0.toByte))))
+    implicit val bifrostQueryAlgebra: BifrostQueryAlgebra[IO] = new BifrostQueryAlgebra[IO] {
+
+      override def blockByDepth(depth: Long): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] =
+        IO.pure(
+          Some(
+            (
+              BlockId(ByteString.copyFrom(Array.fill(32)(0.toByte))),
+              BlockHeader(
+                parentHeaderId = BlockId(ByteString.copyFrom(Array.fill(32)(0.toByte))),
+                txRoot = ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                bloomFilter = ByteString.copyFrom(Array.fill(256)(0.toByte)),
+                height = 50,
+                slot = 100,
+                eligibilityCertificate = EligibilityCertificate(
+                  ByteString.copyFrom(Array.fill(80)(0.toByte)),
+                  ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                  ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                  ByteString.copyFrom(Array.fill(32)(0.toByte))
+                ),
+                operationalCertificate = OperationalCertificate(
+                  VerificationKeyKesProduct(ByteString.copyFrom(Array.fill(32)(0.toByte))),
+                  SignatureKesProduct(
+                    SignatureKesSum(
+                      ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                      ByteString.copyFrom(Array.fill(64)(0.toByte))
+                    ),
+                    SignatureKesSum(
+                      ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                      ByteString.copyFrom(Array.fill(64)(0.toByte))
+                    ),
+                    ByteString.copyFrom(Array.fill(32)(0.toByte))
+                  ),
+                  ByteString.copyFrom(Array.fill(32)(0.toByte)),
+                  ByteString.copyFrom(Array.fill(64)(0.toByte))
+                ),
+                address = StakingAddress(ByteString.copyFrom(Array.fill(32)(0.toByte))),
+                version = ProtocolVersion.defaultInstance
+              ),
+              BlockBody(Seq.empty, None),
+              Seq.empty
+            )
+          )
+        )
+
+      override def broadcastTransaction(tx: IoTransaction): IO[TransactionId] =
+        IO.pure(TransactionId(ByteString.copyFrom(Array.fill(32)(0.toByte))))
 
       override def blockByHeight(height: Long): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] = ???
       override def blockById(blockId: BlockId): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] = ???
@@ -199,6 +240,7 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
       true
     )
   }
+
   testDirectory.test("Get Address > An exception occurred") { _ =>
     interceptIO[UnableToGetAddressForFunds](for {
       initialize <- EasyApi.initialize[IO]("password", testArgs)
@@ -206,6 +248,7 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
       addr <- mockApi.getAddressToReceiveFunds(WalletAccount("does-not", "exist"))
     } yield true)
   }
+
   testDirectory.test("Transfer 100Lvls > Happy Path") { _ =>
     assertIO(
       obtained = for {
@@ -217,14 +260,18 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
       true
     )
   }
+
   testDirectory.test("Transfer 100Lvls > Invalid From Account") { _ =>
-    interceptMessageIO[UnableToTransferFunds]("Issue transferring funds: Unable to get lock for (does-not, exist) account")(for {
+    interceptMessageIO[UnableToTransferFunds](
+      "Issue transferring funds: Unable to get lock for (does-not, exist) account"
+    )(for {
       initialize <- EasyApi.initialize[IO]("password", testArgs)
       mockApi = mockEasyApi(initialize)
       addr <- mockApi.getAddressToReceiveFunds(DefaultAccount)
       txId <- mockApi.transferFunds(WalletAccount("does-not", "exist"), addr, 100L, LvlType, 1L)
     } yield true)
   }
+
   testDirectory.test("Transfer 700Lvls > Not enough funds") { _ =>
     interceptMessageIO[UnableToTransferFunds]("Issue transferring funds: Unable to build transaction")(for {
       initialize <- EasyApi.initialize[IO]("password", testArgs)
@@ -233,6 +280,7 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
       txId <- mockApi.transferFunds(GenesisAccount, addr, 700L, LvlType, 1L)
     } yield true)
   }
+
   testDirectory.test("Transfer 100Lvls > Invalid Transaction") { _ =>
     interceptMessageIO[UnableToTransferFunds]("Issue transferring funds: Transaction failed validation")(for {
       initialize <- EasyApi.initialize[IO]("password", testArgs)
