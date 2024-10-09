@@ -13,17 +13,11 @@ import xyz.stratalab.sdk.builders.TransactionBuilderApi.implicits.lockAddressOps
 import xyz.stratalab.sdk.constants.NetworkConstants.{MAIN_LEDGER_ID, MAIN_NETWORK_ID}
 import xyz.stratalab.sdk.dataApi._
 import xyz.stratalab.sdk.servicekit._
-import xyz.stratalab.sdk.syntax.ValueTypeIdentifier
+import xyz.stratalab.sdk.syntax.{ValueTypeIdentifier, int128AsBigInt, valueToQuantitySyntaxOps, valueToTypeIdentifierSyntaxOps}
 import xyz.stratalab.sdk.utils.Encoding
 import xyz.stratalab.sdk.wallet.CredentiallerInterpreter.InvalidTransaction
 import xyz.stratalab.sdk.wallet.{Credentialler, CredentiallerInterpreter, WalletApi}
-import xyz.stratalab.strata.servicekit.EasyApi.{
-  DefaultAccount,
-  UnableToGetBalance,
-  UnableToTransferFunds,
-  WalletAccount
-}
-import xyz.stratalab.sdk.syntax.{int128AsBigInt, valueToQuantitySyntaxOps, valueToTypeIdentifierSyntaxOps}
+import xyz.stratalab.strata.servicekit.EasyApi._
 
 import java.nio.charset.StandardCharsets
 
@@ -51,12 +45,12 @@ class EasyApi[F[
       curIdx <- EitherT(
         walletStateAlgebra
           .getCurrentIndicesForFunds(from.fellowship, from.template, None)
-          .map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair")))
+          .map(_.toRight(new RuntimeException(s"Unable to obtain Idx for (${from.fellowship}, ${from.template}) account")))
       )
       inputLock <- EitherT(
         walletStateAlgebra
           .getLock(from.fellowship, from.template, curIdx.z)
-          .map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair")))
+          .map(_.toRight(new RuntimeException(s"Unable to get lock for (${from.fellowship}, ${from.template}) account")))
       )
       inputAddr <- EitherT(transactionBuilderApi.lockAddress(inputLock).map(_.asRight[RuntimeException]))
       txos <- EitherT(
@@ -68,7 +62,7 @@ class EasyApi[F[
       changeLock <- EitherT(
         walletStateAlgebra
           .getLock(from.fellowship, from.template, curIdx.z + 1)
-          .map(_.toRight(new RuntimeException("Unable to get change lock for next (fellowship, template) pair")))
+          .map(_.toRight(new RuntimeException(s"Unable to get change lock for next (${from.fellowship}, ${from.template}) account")))
       )
       changeAddr <- EitherT(transactionBuilderApi.lockAddress(changeLock).map(_.asRight[RuntimeException]))
       unproven <- EitherT(
@@ -130,6 +124,22 @@ class EasyApi[F[
       case Right(txId) => txId
     }
 
+  def getAddressToReceiveFunds(account: WalletAccount): F[LockAddress] = (for {
+    nextIdx <- EitherT(walletStateAlgebra
+    .getCurrentIndicesForFunds(account.fellowship, account.template, None)
+    .map(_.toRight( new RuntimeException(s"Invalid (${account.fellowship}, ${account.template}) account")))
+    )
+    nextLock <- EitherT(
+      walletStateAlgebra
+        .getLock(account.fellowship, account.template, nextIdx.z)
+        .map(_.toRight(new RuntimeException(s"Unable to get lock for next (${account.fellowship}, ${account.template}) account")))
+    )
+    nextAddr <- EitherT(transactionBuilderApi.lockAddress(nextLock).map(_.asRight[RuntimeException]))
+  } yield nextAddr).value map {
+    case Left(err)    => throw UnableToGetAddressForFunds(err)
+    case Right(lockAddr) => lockAddr
+  }
+
   def buildContext(tx: IoTransaction): F[Context[F]] = for {
     tipBlockHeader <- bifrostQueryAlgebra
       .blockByDepth(1L)
@@ -149,12 +159,12 @@ class EasyApi[F[
       curIdx <- EitherT(
         walletStateAlgebra
           .getCurrentIndicesForFunds(account.fellowship, account.template, None)
-          .map(_.toRight(new RuntimeException("Invalid (fellowship, template) pair")))
+          .map(_.toRight(new RuntimeException(s"Invalid (${account.fellowship}, ${account.template}) account")))
       )
       lock <- EitherT(
         walletStateAlgebra
           .getLock(account.fellowship, account.template, curIdx.z)
-          .map(_.toRight(new RuntimeException("Unable to get lock for (fellowship, template) pair")))
+          .map(_.toRight(new RuntimeException(s"Unable to get lock for (${account.fellowship}, ${account.template}) account")))
       )
       lockAddr <- EitherT(transactionBuilderApi.lockAddress(lock).map(_.asRight[RuntimeException]))
       utxos <- EitherT(
@@ -164,13 +174,16 @@ class EasyApi[F[
           .handleError(e => new RuntimeException("Unable to query UTXO", e).asLeft)
       )
     } yield utxos
-      .map(_.transactionOutput.value.value)
-      .groupBy(_.typeIdentifier)
-      .view
-      .mapValues(_.map(_.quantity: BigInt).sum.toLong)).value map {
-      case Left(err)  => throw UnableToGetBalance(err)
-      case Right(res) => res.toMap
-    }
+        .map(_.transactionOutput.value.value)
+        .groupBy(_.typeIdentifier)
+        .view
+        .mapValues(_.map(_.quantity: BigInt).sum.toLong)
+
+      ).value map {
+        case Left(err) => throw UnableToGetBalance(err)
+        case Right(res) => res.toMap
+      }
+
 }
 
 object EasyApi {
@@ -183,6 +196,8 @@ object EasyApi {
 
   case class UnableToGetBalance(err: Throwable = null)
       extends RuntimeException(s"Unable to get balance: ${err.getMessage}", err)
+  case class UnableToGetAddressForFunds(err: Throwable = null)
+      extends RuntimeException(s"Unable to get generate address: ${err.getMessage}", err)
 
   case class InitArgs(
     networkId:    Int = MAIN_NETWORK_ID,
