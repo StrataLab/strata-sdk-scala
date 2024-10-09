@@ -130,7 +130,7 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
     implicit val walletApi: WalletApi[IO] = original.walletApi
     implicit val transactionBuilderApi: TransactionBuilderApi[IO] = original.transactionBuilderApi
     implicit val credentialler: Credentialler[IO] = original.credentialler
-    implicit val genusQueryAlgebra: GenusQueryAlgebra[IO] = (fromAddress: LockAddress, txoState: TxoState) =>
+    implicit val genusQueryAlgebra: GenusQueryAlgebra[IO] = (_: LockAddress, _: TxoState) =>
       IO.pure(
         Seq(
           Txo(
