@@ -1,6 +1,5 @@
 package xyz.stratalab.crypto
 
-import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import io.circe.{parser, Decoder}
 
 package object utils {
