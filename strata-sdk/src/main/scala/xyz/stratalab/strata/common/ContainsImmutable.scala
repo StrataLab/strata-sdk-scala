@@ -53,9 +53,10 @@ object ContainsImmutable {
 
     implicit val structImmutable: ContainsImmutable[Struct] = _.toByteArray.immutable
 
-    implicit def pairImmutable[T: ContainsImmutable: ClassTag, P: ContainsImmutable: ClassTag]: ContainsImmutable[(T, P)] = {
-      case (p: T, t: P) =>
-      t.immutable ++ p.immutable}
+    implicit def pairImmutable[T: ContainsImmutable: ClassTag, P: ContainsImmutable: ClassTag]
+      : ContainsImmutable[(T, P)] = { case (p: T, t: P) =>
+      t.immutable ++ p.immutable
+    }
 
     implicit def seqImmutable[T: ContainsImmutable]: ContainsImmutable[Seq[T]] = (seq: Seq[T]) =>
       seq.zipWithIndex.foldLeft(ImmutableBytes()) { case (acc, (item, index)) =>
@@ -250,7 +251,7 @@ object ContainsImmutable {
       up.kesKeyHours.immutable ++
       up.kesKeyMinutes.immutable
 
-    implicit val configProposalImmutable:  ContainsImmutable[Value.ConfigProposal] = (cp: Value.ConfigProposal) =>
+    implicit val configProposalImmutable: ContainsImmutable[Value.ConfigProposal] = (cp: Value.ConfigProposal) =>
       cp.value.toSeq.immutable
 
     implicit val signatureKesSumImmutable: ContainsImmutable[xyz.stratalab.consensus.models.SignatureKesSum] =
