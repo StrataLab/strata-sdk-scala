@@ -145,7 +145,7 @@ class EasyApiSpec extends CatsEffectSuite with BaseSpec {
           )
         )
       )
-    implicit val bifrostQueryAlgebra: NodeQueryAlgebra[IO] = new NodeQueryAlgebra[IO] {
+    implicit val nodeQueryAlgebra: NodeQueryAlgebra[IO] = new NodeQueryAlgebra[IO] {
 
       override def blockByDepth(depth: Long): IO[Option[(BlockId, BlockHeader, BlockBody, Seq[IoTransaction])]] =
         IO.pure(

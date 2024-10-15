@@ -35,7 +35,7 @@ class EasyApi[F[
   val fellowshipStorageAlgebra: FellowshipStorageAlgebra[F] = implicitly[FellowshipStorageAlgebra[F]]
   val transactionBuilderApi: TransactionBuilderApi[F] = implicitly[TransactionBuilderApi[F]]
   val walletApi: WalletApi[F] = implicitly[WalletApi[F]]
-  val bifrostQueryAlgebra: NodeQueryAlgebra[F] = implicitly[NodeQueryAlgebra[F]]
+  val nodeQueryAlgebra: NodeQueryAlgebra[F] = implicitly[NodeQueryAlgebra[F]]
   val genusQueryAlgebra: IndexerQueryAlgebra[F] = implicitly[IndexerQueryAlgebra[F]]
   val credentialler: Credentialler[F] = implicitly[Credentialler[F]]
 
@@ -94,7 +94,7 @@ class EasyApi[F[
           .map(_.leftMap(errs => new RuntimeException("Transaction failed validation", InvalidTransaction(errs))))
       )
       txId <- EitherT(
-        bifrostQueryAlgebra
+        nodeQueryAlgebra
           .broadcastTransaction(proven)
           .map(_.asRight[RuntimeException])
           .handleError(e => new RuntimeException("Broadcast transaction failed", e).asLeft)
@@ -159,7 +159,7 @@ class EasyApi[F[
   }
 
   def buildContext(tx: IoTransaction): F[Context[F]] = for {
-    tipBlockHeader <- bifrostQueryAlgebra
+    tipBlockHeader <- nodeQueryAlgebra
       .blockByDepth(1L)
       .map(_.get._2)
   } yield Context[F](
