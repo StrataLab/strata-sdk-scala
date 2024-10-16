@@ -3,7 +3,7 @@ package xyz.stratalab.crypto
 import xyz.stratalab.crypto.generation.Pbkdf2Sha512
 import org.scalatest.propspec.AnyPropSpec
 import xyz.stratalab.crypto.utils.Hex
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers._
 
 class Pbkdf2Sha512Spec extends AnyPropSpec {
 
