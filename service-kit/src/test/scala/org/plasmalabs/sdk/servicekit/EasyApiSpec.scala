@@ -12,7 +12,6 @@ import org.plasmalabs.node.services.SynchronizationTraversalRes
 import com.google.protobuf.ByteString
 import org.plasmalabs.sdk.models.Indices
 import munit.CatsEffectSuite
-import org.plasmalabs.quivr.api.Proposer
 import org.plasmalabs.sdk.builders.TransactionBuilderApi
 import org.plasmalabs.sdk.common.ContainsEvidence.Ops
 import org.plasmalabs.sdk.common.ContainsImmutable.instances.lockImmutable

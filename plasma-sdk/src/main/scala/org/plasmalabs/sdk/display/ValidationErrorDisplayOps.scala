@@ -4,7 +4,6 @@ import org.plasmalabs.sdk.display.DisplayOps.DisplayTOps
 import org.plasmalabs.sdk.validation.TransactionAuthorizationError.AuthorizationFailed
 import org.plasmalabs.sdk.validation.TransactionSyntaxError._
 import org.plasmalabs.sdk.validation.{TransactionSyntaxError, ValidationError}
-import org.plasmalabs.quivr.runtime.QuivrRuntimeError
 import org.plasmalabs.quivr.runtime.QuivrRuntimeErrors.ContextError.{
   FailedToFindDatum,
   FailedToFindDigestVerifier,
@@ -17,7 +16,7 @@ import org.plasmalabs.quivr.runtime.QuivrRuntimeErrors.ValidationError.{
   MessageAuthorizationFailed,
   UserProvidedInterfaceFailure
 }
-import org.plasmalabs.quivr.runtime.{QuivrRuntimeError, QuivrRuntimeErrors}
+import org.plasmalabs.quivr.runtime.QuivrRuntimeError
 
 trait ValidationErrorDisplayOps {
 

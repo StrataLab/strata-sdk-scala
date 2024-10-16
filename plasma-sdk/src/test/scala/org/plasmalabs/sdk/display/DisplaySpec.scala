@@ -14,7 +14,6 @@ import org.plasmalabs.sdk.syntax.bigIntAsInt128
 import org.plasmalabs.sdk.syntax.longAsInt128
 import org.plasmalabs.sdk.wallet.CredentiallerInterpreter
 import org.plasmalabs.sdk.wallet.WalletApi
-import org.plasmalabs.quivr.api.Proposer
 import com.google.protobuf.ByteString
 import quivr.models.Proof
 import quivr.models.SmallData

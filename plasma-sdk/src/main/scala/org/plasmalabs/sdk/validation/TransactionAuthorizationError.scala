@@ -1,7 +1,6 @@
 package org.plasmalabs.sdk.validation
 
 import org.plasmalabs.quivr.runtime.QuivrRuntimeError
-import org.plasmalabs.quivr.runtime.QuivrRuntimeError
 
 sealed abstract class TransactionAuthorizationError extends ValidationError
 

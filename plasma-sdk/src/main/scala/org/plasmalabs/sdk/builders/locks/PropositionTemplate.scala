@@ -13,7 +13,6 @@ import cats.implicits.{
 }
 import cats.{Applicative, Monad}
 import org.plasmalabs.quivr.api.Proposer
-import org.plasmalabs.quivr.api.Proposer
 
 trait PropositionTemplate[F[_]] {
   val propositionType: PropositionType

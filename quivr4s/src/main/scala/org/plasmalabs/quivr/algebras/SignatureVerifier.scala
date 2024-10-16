@@ -1,7 +1,6 @@
 package org.plasmalabs.quivr.algebras
 
 import org.plasmalabs.common.ContextlessValidation
-import org.plasmalabs.quivr.runtime.QuivrRuntimeError
 import quivr.models.SignatureVerification
 import org.plasmalabs.quivr.runtime.QuivrRuntimeError
 

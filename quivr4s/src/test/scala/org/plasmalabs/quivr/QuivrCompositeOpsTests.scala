@@ -1,11 +1,9 @@
 package org.plasmalabs.quivr
 
 import cats.{Id, Monad}
-import org.plasmalabs.quivr.runtime.QuivrRuntimeErrors
 import com.google.protobuf.ByteString
 import quivr.models.VerificationKey._
 import quivr.models._
-import api.{Proposer, Prover, Verifier}
 import runtime.QuivrRuntimeErrors
 
 /**
